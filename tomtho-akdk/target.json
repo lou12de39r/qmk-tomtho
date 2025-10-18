@@ -1,0 +1,10 @@
+{
+    "include": [
+        {
+            "keyboard": "tomtho",
+            "keymap": "vial",
+            "target": "uf2",
+            "name": "tomtho_vial"
+        }
+    ]
+}
