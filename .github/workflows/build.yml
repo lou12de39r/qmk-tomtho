@@ -34,7 +34,7 @@ jobs:
       - name: Build firmware
         working-directory: qmk_firmware
         run: |
-          qmk compile -kb tomtho -km vial
+          make tomtho:vial
 
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
