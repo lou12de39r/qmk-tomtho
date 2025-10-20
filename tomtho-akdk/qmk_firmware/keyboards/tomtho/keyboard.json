@@ -1,7 +1,7 @@
 {
-    "manufacturer": "Auto-Keyboard-Design-Kit by sekigon-gonnoc",
+    "manufacturer": "T.tom",
     "keyboard_name": "tomtho",
-    "maintainer": "Auto-KDK",
+    "maintainer": "T.tom",
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",
     "features": {
