@@ -1,44 +1,44 @@
-
 name: Build QMK Firmware
 
 on:
   push:
     branches:
-      - main  # または master
+      - main  # mainブランチにpushされたときに実行
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli
+    container: qmkfm/qmk_cli  # QMK公式ビルド環境を使用
 
     steps:
-      - name: Checkout qmk/qmk_firmware
+      # QMK公式ファームウェアを取得
+      - name: Checkout QMK Firmware
         uses: actions/checkout@v4
         with:
           repository: qmk/qmk_firmware
           path: qmk_firmware
 
-      - name: Checkout user keymap
+      # 自作リポジトリをチェックアウト
+      - name: Checkout user repo (tomtho-akdk/qmk.tomtho)
         uses: actions/checkout@v4
         with:
-          path: user_keymap
+          path: user_repo
 
-      - name: Setup QMK
-        working-directory: qmk_firmware
+      # 自作キーボードフォルダをQMKにリンク
+      - name: Link custom keyboard
         run: |
-          qmk setup -y
+          ln -s $(pwd)/user_repo/tomtho-akdk/qmk_firmware/keyboards/tomtho \
+                $(pwd)/qmk_firmware/keyboards/tomtho
 
-      - name: Symlink keymap
-        run: |
-          ln -s /github/workspace/user_keymap/keyboard/keymap /github/workspace/qmk_firmware/keyboards/keyboard/keymaps/keymap
-
+      # ファームウェアをビルド
       - name: Build firmware
         working-directory: qmk_firmware
         run: |
-          qmk compile -kb keyboard -km keymap
+          qmk compile -kb tomtho -km vial
 
-      - name: Upload UF2 file
+      # 成果物をアップロード（.uf2 / .hex / .bin）
+      - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: qmk-firmware
-          path: qmk_firmware/.build/keyboard_keymap.uf2
+          name: tomtho-vial-firmware
+          path: qmk_firmware/.build/*.uf2
