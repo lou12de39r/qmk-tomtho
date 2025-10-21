@@ -35,11 +35,6 @@ jobs:
         working-directory: qmk_firmware
         run: |
           make tomtho:vial
-          
-      # 作成した場所を確認
-  　  - name: Checkout created deta
-        run: |
-          ls qmk_firmware/.build/
 
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
