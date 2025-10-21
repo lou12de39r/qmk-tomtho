@@ -43,7 +43,6 @@ jobs:
         #  name: tomtho-vial-firmware
          # path: qmk_firmware/.build/*.uf2
 
-          
 - name: Package firmware files
   run: |
     mkdir -p output
