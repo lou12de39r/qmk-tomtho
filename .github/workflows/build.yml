@@ -1,4 +1,4 @@
-name: Build QMK Firmware
+name: Build QMK Firmware　　#ファームウェアを作成
 
 on:
   push:
