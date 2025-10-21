@@ -42,6 +42,8 @@ jobs:
        # with:
         #  name: tomtho-vial-firmware
          # path: qmk_firmware/.build/*.uf2
+
+      # ファイルを1つにまとめる
       - name: Package firmware files
         run: |
          mkdir -p output
@@ -51,6 +53,7 @@ jobs:
          cd output
          zip -r ../tomtho_firmware.zip
 
+      # ファイルをアップロード
 - name: Upload firmware artifact
   uses: actions/upload-artifact@v4
   with:
