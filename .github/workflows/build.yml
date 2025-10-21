@@ -38,7 +38,8 @@ jobs:
 
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
-        uses: actions/upload-artifact@v4
+        #uses: actions/upload-artifact@v4
+         uses: tomtho-akdk/qmk.tomtho/.github/workflows/build-user-config.yml@main
         with:
           name: tomtho-vial-firmware
           path: qmk_firmware/.build/*.uf2
