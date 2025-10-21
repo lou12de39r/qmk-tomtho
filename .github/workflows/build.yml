@@ -54,8 +54,8 @@ jobs:
          zip -r ../tomtho_firmware.zip
 
       # ファイルをアップロード
-- name: Upload firmware artifact
-  uses: actions/upload-artifact@v4
-  with:
-    name: tomtho-firmware
-    path: tomtho_firmware.zip
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tomtho-firmware
+          path: tomtho_firmware.zip
