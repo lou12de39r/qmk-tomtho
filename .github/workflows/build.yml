@@ -42,9 +42,8 @@ jobs:
        # with:
         #  name: tomtho-vial-firmware
          # path: qmk_firmware/.build/*.uf2
-         
-- name: Package firmware files
-  run: |
+      - name: Package firmware files
+        run: |
     mkdir -p output
     cp qmk_firmware/.build/*.uf2 output/ || true
     cp qmk_firmware/.build/*.hex output/ || true
