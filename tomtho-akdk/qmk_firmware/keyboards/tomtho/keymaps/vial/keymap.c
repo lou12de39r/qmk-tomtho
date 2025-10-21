@@ -1,5 +1,7 @@
 #include QMK_KEYBOARD_H
 
+#include keymap_jp.h
+
 enum layer_names {
     _0,
     _1,
