@@ -35,6 +35,10 @@ jobs:
         working-directory: qmk_firmware
         run: |
           make tomtho:vial
+          
+      # 作成した場所を確認
+  　  - name: Link custom keyboard
+        run: |
           ls qmk_firmware/.build/
 
       # 成果物をアップロード（.uf2 / .hex / .bin）
