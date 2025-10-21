@@ -50,7 +50,7 @@ jobs:
          cp qmk_firmware/.build/*.bin output/ || true
          cd output
          zip -r ../tomtho_firmware.zip
-         
+
 - name: Upload firmware artifact
   uses: actions/upload-artifact@v4
   with:
