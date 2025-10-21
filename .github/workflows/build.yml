@@ -37,7 +37,7 @@ jobs:
           make tomtho:vial
           
       # 作成した場所を確認
-  　  - name: Link custom keyboard
+  　  - name: Checkout created deta
         run: |
           ls qmk_firmware/.build/
 
