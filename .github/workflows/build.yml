@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: vialkeyboard/qmk_cli  # Vial公式のQMK CLI環境を使用
+    container: qmkfm/qmk_cli  # Vial公式のQMK CLI環境を使用
 
     steps:
       # Vial対応QMKを取得
