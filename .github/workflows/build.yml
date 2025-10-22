@@ -1,46 +1,52 @@
-name: Build Vial QMK Firmware
+name: Build Vial QMK Firmware # Vial対応ファームウェアを作成
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main # mainブランチにpushされたときに実行
+  workflow_dispatch: # Actionsタブから手動で実行できるようにする
 
-# ここで変数を定義し、再利用しやすくする
+# 変数をenvセクションで定義
 env:
-  KEYBOARD_NAME: "tomtho" # キーボード名。使用するキーボードに合わせて変更
-  KEYBOARD_PATH: "keyboards/${{ env.KEYBOARD_NAME }}" # キーボード定義へのパス
-  QMK_VARIANT: "vial" # ビルドするキーマップ名
+  KEYBOARD_NAME: "tomtho" # キーボードの名前
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
+  FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli:latest
+    container: qmkfm/qmk_cli:latest # QMK CLI環境を使用
     steps:
-      # 現在のリポジトリをチェックアウト
-      - name: Checkout current repo
-        uses: actions/checkout@v4
-      
-      # Vial QMKリポジトリをチェックアウト
+      # Vial対応QMKを取得
       - name: Checkout Vial QMK Firmware
         uses: actions/checkout@v4
         with:
           repository: vial-kb/vial-qmk
           path: vial-qmk
 
-      # 現在のリポジトリのキーボード定義をVial QMKにコピー
-      - name: Copy custom keyboard
-        run: |
-          cp -r "${{ env.KEYBOARD_PATH }}" "vial-qmk/${{ env.KEYBOARD_PATH }}"
+      # 自作リポジトリをチェックアウト
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: user_repo
 
+      # 自作キーボードフォルダをVial QMKにリンク
+      - name: Link custom keyboard
+        run: |
+          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
+          "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+      
       # ファームウェアをビルド
       - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          qmk compile --keyboard ${{ env.KEYBOARD_NAME }} --keymap ${{ env.QMK_VARIANT }}
+          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
       
-      # 成果物をアップロード
+      # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-${{ env.QMK_VARIANT }}-firmware
-          path: vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.QMK_VARIANT }}.*
+          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
+          path: |
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
