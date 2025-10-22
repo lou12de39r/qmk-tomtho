@@ -8,7 +8,7 @@ on:
 # 変数をenvセクションで定義
 env:
   KEYBOARD_NAME: "tomtho" # キーボードの名前
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}" # ユーザーリポジトリ内のキーボード定義へのパス
   FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
