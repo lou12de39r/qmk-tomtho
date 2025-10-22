@@ -1,47 +1,51 @@
-name: Build Vial QMK Firmware  # Vial対応ファームウェアを作成
-
+name: Build Vial QMK Firmware # Vial対応ファームウェアを作成
 on:
   push:
     branches:
-      - main  # mainブランチにpushされたときに実行
+      - main # mainブランチにpushされたときに実行
+
+# 変数をenvセクションで定義
+env:
+  KEYBOARD_NAME: "tomtho" # キーボードの名前
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
+  FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli  # Vial公式のQMK CLI環境を使用
-
+    container: qmkfm/qmk_cli # Vial公式のQMK CLI環境を使用
     steps:
       # Vial対応QMKを取得
       - name: Checkout Vial QMK Firmware
         uses: actions/checkout@v4
         with:
-          repository: vial-kb/vial-qmk  # 通常のQMKではなくVial版を使用
+          repository: vial-kb/vial-qmk
           path: vial-qmk
-
+      
       # 自作リポジトリをチェックアウト
-      - name: Checkout user repo (tomtho-akdk/qmk.tomtho)
+      - name: Checkout user repo
         uses: actions/checkout@v4
         with:
           path: user_repo
-
+      
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
         run: |
-          ln -s $(pwd)/user_repo/tomtho-akdk/qmk_firmware/keyboards/tomtho \
-                $(pwd)/vial-qmk/keyboards/tomtho
-
+          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
+          "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+      
       # ファームウェアをビルド
       - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          make tomtho:vial
-
+          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+      
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tomtho-vial-firmware
+          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
           path: |
-            vial-qmk/tomtho_vial.uf2
-            vial-qmk/tomtho_vial.hex
-            vial-qmk/tomtho_vial.bin
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
