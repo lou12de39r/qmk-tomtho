@@ -1,4 +1,4 @@
-name: Build QMK Firmware　　#ファームウェアを作成
+name: Build Vial QMK Firmware  # Vial対応ファームウェアを作成
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli  # QMK公式ビルド環境を使用
+    container: vialkeyboard/qmk_cli  # Vial公式のQMK CLI環境を使用
 
     steps:
-      # QMK公式ファームウェアを取得
-      - name: Checkout QMK Firmware
+      # Vial対応QMKを取得
+      - name: Checkout Vial QMK Firmware
         uses: actions/checkout@v4
         with:
-          repository: qmk/qmk_firmware
-          path: qmk_firmware
+          repository: vial-kb/vial-qmk  # 通常のQMKではなくVial版を使用
+          path: vial-qmk
 
       # 自作リポジトリをチェックアウト
       - name: Checkout user repo (tomtho-akdk/qmk.tomtho)
@@ -24,15 +24,15 @@ jobs:
         with:
           path: user_repo
 
-      # 自作キーボードフォルダをQMKにリンク
+      # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
         run: |
           ln -s $(pwd)/user_repo/tomtho-akdk/qmk_firmware/keyboards/tomtho \
-                $(pwd)/qmk_firmware/keyboards/tomtho
+                $(pwd)/vial-qmk/keyboards/tomtho
 
       # ファームウェアをビルド
-      - name: Build firmware
-        working-directory: qmk_firmware
+      - name: Build Vial firmware
+        working-directory: vial-qmk
         run: |
           make tomtho:vial
 
@@ -41,4 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tomtho-vial-firmware
-          path: qmk_firmware/tomtho_vial.uf2
+          path: |
+            vial-qmk/tomtho_vial.uf2
+            vial-qmk/tomtho_vial.hex
+            vial-qmk/tomtho_vial.bin
