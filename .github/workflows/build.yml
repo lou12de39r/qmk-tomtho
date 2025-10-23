@@ -5,29 +5,50 @@ on:
       - main # mainブランチにpushされたときに実行
   workflow_dispatch: # Actionsタブから手動で実行できるようにする
 
-# 変数をenvセクションで定義
-env:
-  KEYBOARD_NAME: "tomtho" # キーボードの名前
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
-  FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
-
 jobs:
   build:
     runs-on: ubuntu-latest
     container: qmkfm/qmk_cli:latest # QMK CLI環境を使用
+    
     steps:
-      # Vial対応QMKを取得
-      - name: Checkout Vial QMK Firmware
-        uses: actions/checkout@v4
-        with:
-          repository: vial-kb/vial-qmk
-          path: vial-qmk
-
       # 自作リポジトリをチェックアウト
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
           path: user_repo
+
+      # vial.jsonを検索してキーボード名を取得
+      - name: Find vial.json and get keyboard name
+        id: get_keyboard_info
+        run: |
+          # findコマンドでuser_repo/keyboards/以下のvial.jsonを再帰的に検索
+          # 見つかったファイルのパスから、キーボード名を抽出
+          VIAL_JSON_PATH=$(find user_repo/ -type f -name 'vial.json')
+          
+          # パスが複数見つかった場合は最初のものを使用 (またはエラーにする)
+          if [ -z "$VIAL_JSON_PATH" ]; then
+            echo "Error: vial.json not found."
+            exit 1
+          fi
+
+          # jqを使ってvial.jsonからキーボード名を取得
+          KEYBOARD_NAME=$(jq -r '.name' "$VIAL_JSON_PATH")
+
+          if [ -z "$KEYBOARD_NAME" ]; then
+            echo "Error: 'name' key not found in vial.json."
+            exit 1
+          fi
+
+          # 環境変数に設定
+          echo "KEYBOARD_NAME=$KEYBOARD_NAME" >> $GITHUB_ENV
+          echo "USER_REPO_PATH=$(dirname "$VIAL_JSON_PATH" | sed 's|^user_repo/||')" >> $GITHUB_ENV
+      
+      # Vial対応QMKをチェックアウト
+      - name: Checkout Vial QMK Firmware
+        uses: actions/checkout@v4
+        with:
+          repository: vial-kb/vial-qmk
+          path: vial-qmk
 
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
@@ -39,14 +60,14 @@ jobs:
       - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+          make ${{ env.KEYBOARD_NAME }}:vial
       
-      # 成果物をアップロード（.uf2 / .hex / .bin）
+      # 成果物をアップロード
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
+          name: ${{ env.KEYBOARD_NAME }}-vial-firmware
           path: |
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            vial-qmk/${{ env.KEYBOARD_NAME }}_vial.uf2
+            vial-qmk/${{ env.KEYBOARD_NAME }}_vial.hex
+            vial-qmk/${{ env.KEYBOARD_NAME }}_vial.bin
