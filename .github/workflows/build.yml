@@ -36,7 +36,7 @@ jobs:
         run: |
           # user_repo/keyboards以下のキーボード定義パスを取得
           # 例: user_repo/keyboards/tomtho
-          KEYBOARD_PATH=$(find user_repo/keyboards -type d -name "${{ env.KEYBOARD_NAME }}" -print -quit)
+          KEYBOARD_PATH=$(find user_repo/ -type d -name "${{ env.KEYBOARD_NAME }}" -print -quit)
           # ファイルアップロード時に使用するため、user_repoからの相対パスに変換
           # 例: keyboards/tomtho
           KEYBOARD_RELATIVE_PATH=${KEYBOARD_PATH#user_repo/}
