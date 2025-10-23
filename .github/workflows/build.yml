@@ -16,19 +16,22 @@ jobs:
         with:
           path: user_repo
 
-      - name: Find all vial.json paths
+      - name: Find and extract keyboard info
         id: set_matrix
         run: |
-          # user_repo/以下のvial.jsonをすべて検索し、パスのリストをJSON形式で生成
-          find_result=$(find user_repo/ -name 'vial.json' -print0 | jq -Rs 'split("\u0000")[:-1] | map({vial_json_path: .})' || echo "[]")
+          # user_repo/以下のvial.jsonをすべて検索
+          find_result=$(find user_repo/ -name 'vial.json' -print0)
           
+          # findの結果をNULL文字で区切り、jqで処理
+          # jqで各vial.jsonから"name"の値を抽出し、JSONオブジェクトの配列に変換
+          # パイプでつなぎ、エラーが発生しても空の配列を返すようにする
+          json_matrix=$(echo "$find_result" | xargs -0 -I {} jq -s 'map({vial_json_path: . , keyboard_name: . | fromjson | .name})' {} 2>/dev/null || echo "[]")
+
           # 複数行の出力を正しく扱うために、ヒアドキュメントを使用
-          # この形式は、GitHub Actionsの新しい出力方法に対応
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
-          echo "$find_result" >> $GITHUB_OUTPUT
+          echo "$json_matrix" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      
   build:
     runs-on: ubuntu-latest
     needs: find_keyboards
@@ -48,39 +51,21 @@ jobs:
         with:
           path: user_repo
 
-      - name: Get keyboard info from vial.json
-        id: get_info
-        run: |
-          # matrixから渡されたvial.jsonのパスを取得
-          VIAL_JSON_PATH="${{ matrix.vial_json_path }}"
-          
-          # jqを使ってvial.jsonからキーボード名を取得
-          KEYBOARD_NAME=$(jq -r '.name' "$VIAL_JSON_PATH")
-
-          if [ -z "$KEYBOARD_NAME" ]; then
-            echo "Error: 'name' key not found in $VIAL_JSON_PATH."
-            exit 1
-          fi
-
-          # 環境変数に設定
-          echo "KEYBOARD_NAME=$KEYBOARD_NAME" >> $GITHUB_ENV
-          echo "USER_REPO_PATH=$(dirname "$VIAL_JSON_PATH" | sed 's|^user_repo/||')" >> $GITHUB_ENV
-
       - name: Link custom keyboard
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
-          "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+          ln -s "$(pwd)/user_repo/${{ matrix.vial_json_path | dirname }}" \
+          "$(pwd)/vial-qmk/keyboards/${{ matrix.keyboard_name }}"
       
       - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:vial
+          make ${{ matrix.keyboard_name }}:vial
       
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-vial-firmware
+          name: ${{ matrix.keyboard_name }}-vial-firmware
           path: |
-            vial-qmk/${{ env.KEYBOARD_NAME }}_vial.uf2
-            vial-qmk/${{ env.KEYBOARD_NAME }}_vial.hex
-            vial-qmk/${{ env.KEYBOARD_NAME }}_vial.bin
+            vial-qmk/${{ matrix.keyboard_name }}_vial.uf2
+            vial-qmk/${{ matrix.keyboard_name }}_vial.hex
+            vial-qmk/${{ matrix.keyboard_name }}_vial.bin
