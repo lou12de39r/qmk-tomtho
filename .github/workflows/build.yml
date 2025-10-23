@@ -58,8 +58,8 @@ jobs:
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-${{ env.KEYMAP_NAME }}-firmware
+          name: ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}-${{ env.KEYMAP_NAME }}-firmware
           # working-directoryがvial-qmkなので、パスはシンプルに
-          path: ${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.uf2
-                ${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.hex
-                ${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.bin
+          path: ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.uf2
+                ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.hex
+                ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.bin
