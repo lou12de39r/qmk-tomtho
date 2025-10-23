@@ -47,18 +47,18 @@ jobs:
           # ビルド成果物のパスをステップ出力として設定
           echo "firmware_path=vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}" >> $GITHUB_OUTPUT
 
-      # ファームウェアをビルド
-      - name: Build Vial firmware
+      # ビルドとアップロードをまとめて行う
+      - name: Build and Upload Vial firmware
         working-directory: vial-qmk
         run: |
           make ${{ env.KEYBOARD_NAME }}:${{ env.KEYMAP_NAME }}
-      
+        
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD_NAME }}-${{ env.KEYMAP_NAME }}-firmware
-          path: |
-            ${{ steps.link_keyboard.outputs.firmware_path }}.uf2
-            ${{ steps.link_keyboard.outputs.firmware_path }}.hex
-            ${{ steps.link_keyboard.outputs.firmware_path }}.bin
+          # working-directoryがvial-qmkなので、パスはシンプルに
+          path: ${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.uf2
+                ${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.hex
+                ${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.bin
