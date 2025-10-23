@@ -1,4 +1,5 @@
 name: Build Vial QMK Firmware # Vial対応ファームウェアを作成
+
 on:
   push:
     branches:
@@ -7,39 +8,54 @@ on:
 
 # 変数をenvセクションで定義
 env:
-  KEYBOARD_NAME: "tomtho" # キーボードの名前
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
+  KEYBOARD_NAME: "tomtho" # ビルドするキーボードの名前
   FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container: qmkfm/qmk_cli:latest # QMK CLI環境を使用
+
     steps:
-      # Vial対応QMKを取得
+      # Vial対応QMKをチェックアウト
       - name: Checkout Vial QMK Firmware
         uses: actions/checkout@v4
         with:
           repository: vial-kb/vial-qmk
           path: vial-qmk
 
-      # 自作リポジトリをチェックアウト
+      # 自作キーボードの定義リポジトリをチェックアウト
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
           path: user_repo
 
+      # ビルド対象のキーボード定義パスと成果物出力パスを動的に生成
+      - name: Set dynamic variables
+        id: set_vars
+        run: |
+          # user_repo/keyboards以下のキーボード定義パスを取得
+          # 例: user_repo/keyboards/tomtho
+          KEYBOARD_PATH=$(find user_repo/keyboards -type d -name "${{ env.KEYBOARD_NAME }}" -print -quit)
+          # ファイルアップロード時に使用するため、user_repoからの相対パスに変換
+          # 例: keyboards/tomtho
+          KEYBOARD_RELATIVE_PATH=${KEYBOARD_PATH#user_repo/}
+          echo "KEYBOARD_RELATIVE_PATH=${KEYBOARD_RELATIVE_PATH}" >> $GITHUB_ENV
+          # 成果物の出力先パス（キーボードディレクトリ内に設定）
+          KEYBOARD_OUTPUT_PATH="${KEYBOARD_PATH}"
+          echo "KEYBOARD_OUTPUT_PATH=${KEYBOARD_OUTPUT_PATH}" >> $GITHUB_ENV
+      
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
+          ln -s "$(pwd)/user_repo/${{ env.KEYBOARD_RELATIVE_PATH }}" \
           "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
       
-      # ファームウェアをビルド
+      # ファームウェアをビルド (成果物の出力先をKEYBOARD_OUTPUT_PATHに変更)
       - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+          BUILD_DIR="${{ env.KEYBOARD_OUTPUT_PATH }}" make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
       
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
@@ -47,6 +63,6 @@ jobs:
         with:
           name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
           path: |
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            ${{ env.KEYBOARD_OUTPUT_PATH }}/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            ${{ env.KEYBOARD_OUTPUT_PATH }}/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            ${{ env.KEYBOARD_OUTPUT_PATH }}/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
