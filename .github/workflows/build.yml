@@ -1,4 +1,3 @@
-/workflows/build.yml at 29ba81a
 name: Build Vial QMK Firmware # Vial対応ファームウェアを作成
 on:
   push:
