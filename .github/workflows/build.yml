@@ -8,7 +8,8 @@ on:
 # 変数をenvセクションで定義
 env:
   KEYBOARD_NAME: "tomtho" # キーボードの名前
-  KEYMAP_NAME: "vial" # ビルドするキーマップの名前 (例: vial, defaultなど)
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
+  FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
@@ -26,40 +27,26 @@ jobs:
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
           path: user_repo
 
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
-        id: link_keyboard
         run: |
-          # QMKの標準的なフォルダ構成を前提にパスを決定
-          KEYBOARD_PATH_IN_REPO="qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}"
-          # リポジトリのルートに keyboards フォルダがある場合をチェック
-          if [ -d "$(pwd)/user_repo/keyboards/${{ env.KEYBOARD_NAME }}" ]; then
-            KEYBOARD_PATH_IN_REPO="keyboards/${{ env.KEYBOARD_NAME }}"
-          fi
-          
-          # シンボリックリンクを作成
-          ln -s "$(pwd)/user_repo/${KEYBOARD_PATH_IN_REPO}" \
+          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
           "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
-          
-          # ビルド成果物のパスをステップ出力として設定
-          # ここで $GITHUB_WORKSPACE を追加する
-          echo "firmware_path=${GITHUB_WORKSPACE}/vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}" >> $GITHUB_OUTPUT
-
-      # ビルドとアップロードをまとめて行う
-      - name: Build and Upload Vial firmware
+      
+      # ファームウェアをビルド
+      - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:${{ env.KEYMAP_NAME }}
-        
+          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+      
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}-${{ env.KEYMAP_NAME }}-firmware
-          # working-directoryがvial-qmkなので、パスはシンプルに
-          path: ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.uf2
-                ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.hex
-                ${GITHUB_WORKSPACE}/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}.bin
+          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
+          path: |
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
