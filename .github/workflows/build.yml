@@ -46,6 +46,16 @@ jobs:
         run: |
           make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
       
+      # ビルド後のファイルパスをデバッグ出力
+      - name: Debug firmware path
+        working-directory: vial-qmk
+        run: |
+          ls -l ${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.*
+          echo "Expected paths: "
+          echo "  vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2"
+          echo "  vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex"
+          echo "  vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin"
+
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
