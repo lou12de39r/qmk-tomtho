@@ -24,8 +24,9 @@ jobs:
           
           # findの結果をNULL文字で区切り、jqで処理
           # jqで各vial.jsonから"name"の値を抽出し、JSONオブジェクトの配列に変換
-          # パイプでつなぎ、エラーが発生しても空の配列を返すようにする
-          json_matrix=$(echo "$find_result" | xargs -0 -I {} jq -s 'map({vial_json_path: . , keyboard_name: . | fromjson | .name})' {} 2>/dev/null || echo "[]")
+          # xargsに複数のファイルパスが渡された場合でも適切に処理
+          # エラーが発生しても空の配列を返すようにする
+          json_matrix=$(echo "$find_result" | xargs -0 jq -s 'map({vial_json_path: . , keyboard_name: (. | fromjson | .name)})' 2>/dev/null || echo "[]")
 
           # 複数行の出力を正しく扱うために、ヒアドキュメントを使用
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
@@ -53,7 +54,11 @@ jobs:
 
       - name: Link custom keyboard
         run: |
-          ln -s "$(pwd)/user_repo/${{ matrix.vial_json_path | dirname }}" \
+          # dirnameコマンドでvial.jsonの親ディレクトリを抽出し、USER_REPO_PATH環境変数に格納
+          USER_REPO_PATH=$(dirname "${{ matrix.vial_json_path }}")
+          
+          # 抽出したパスを使ってシンボリックリンクを作成
+          ln -s "$(pwd)/user_repo/${USER_REPO_PATH}" \
           "$(pwd)/vial-qmk/keyboards/${{ matrix.keyboard_name }}"
       
       - name: Build Vial firmware
