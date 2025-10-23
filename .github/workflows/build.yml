@@ -8,6 +8,7 @@ on:
 # 変数をenvセクションで定義
 env:
   KEYBOARD_NAME: "tomtho" # キーボードの名前
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
   FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
@@ -26,18 +27,12 @@ jobs:
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
           path: user_repo
 
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
         run: |
-          KEYBOARD_PATH_IN_REPO="qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}"
-          if [ -d "$(pwd)/user_repo/keyboards/${{ env.KEYBOARD_NAME }}" ]; then
-            KEYBOARD_PATH_IN_REPO="keyboards/${{ env.KEYBOARD_NAME }}"
-          fi
-          
-          ln -s "$(pwd)/user_repo/${KEYBOARD_PATH_IN_REPO}" \
+          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
           "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
       
       # ファームウェアをビルド
@@ -46,16 +41,6 @@ jobs:
         run: |
           make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
       
-      # ビルド後のファイルパスをデバッグ出力
-      - name: Debug firmware path
-        working-directory: vial-qmk
-        run: |
-          ls -l ${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.*
-          echo "Expected paths: "
-          echo "  vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2"
-          echo "  vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex"
-          echo "  vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin"
-
       # 成果物をアップロード（.uf2 / .hex / .bin）
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
