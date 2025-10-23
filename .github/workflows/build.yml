@@ -8,7 +8,6 @@ on:
 # 変数をenvセクションで定義
 env:
   KEYBOARD_NAME: "tomtho" # キーボードの名前
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
   FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
@@ -27,12 +26,18 @@ jobs:
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
+          repository: ${{ github.repository }}
           path: user_repo
 
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
+          KEYBOARD_PATH_IN_REPO="qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}"
+          if [ -d "$(pwd)/user_repo/keyboards/${{ env.KEYBOARD_NAME }}" ]; then
+            KEYBOARD_PATH_IN_REPO="keyboards/${{ env.KEYBOARD_NAME }}"
+          fi
+          
+          ln -s "$(pwd)/user_repo/${KEYBOARD_PATH_IN_REPO}" \
           "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
       
       # ファームウェアをビルド
