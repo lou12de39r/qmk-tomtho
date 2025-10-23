@@ -31,7 +31,7 @@ jobs:
 
       # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
-        id: link_keyboard # ステップにIDを設定
+        id: link_keyboard
         run: |
           # QMKの標準的なフォルダ構成を前提にパスを決定
           KEYBOARD_PATH_IN_REPO="qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}"
@@ -45,7 +45,8 @@ jobs:
           "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
           
           # ビルド成果物のパスをステップ出力として設定
-          echo "firmware_path=vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}" >> $GITHUB_OUTPUT
+          # ここで $GITHUB_WORKSPACE を追加する
+          echo "firmware_path=${GITHUB_WORKSPACE}/vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.KEYMAP_NAME }}" >> $GITHUB_OUTPUT
 
       # ビルドとアップロードをまとめて行う
       - name: Build and Upload Vial firmware
