@@ -22,8 +22,12 @@ jobs:
           # user_repo/以下のvial.jsonをすべて検索し、パスのリストをJSON形式で生成
           find_result=$(find user_repo/ -name 'vial.json' -print0 | jq -Rs 'split("\u0000")[:-1] | map({vial_json_path: .})')
           
-          echo "Found keyboards: $find_result"
-          echo "matrix=$find_result" >> $GITHUB_OUTPUT
+          # 複数行の出力を正しく扱うために、ヒアドキュメントを使用
+          # この形式は、GitHub Actionsの新しい出力方法に対応
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$find_result" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
 
   build:
     runs-on: ubuntu-latest
