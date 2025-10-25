@@ -5,6 +5,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include QMK_KEYBOARD_H
 
+// レイヤー名の定義
+enum my_layers {
+  _0 = 0, // レイヤー0
+  _1,     // レイヤー1
+  _2,     // レイヤー2
+  _3,     // レイヤー3
+};
+
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 	[0] = LAYOUT(
