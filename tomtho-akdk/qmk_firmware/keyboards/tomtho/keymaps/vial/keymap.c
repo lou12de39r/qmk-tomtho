@@ -12,8 +12,14 @@ enum tap_dance_codes {
     TD_WIN_D_WIN_H,
 };
 
-// Tap Danceの動作を処理する関数
-void on_tap_dance(qk_tap_dance_state_t *state, void *user_data) {
+// 関数のプロトタイプ宣言 (新しい型名を使用)
+void on_tap_dance(tap_dance_state_t *state, void *user_data);
+void on_tap_dance_finished(tap_dance_state_t *state, void *user_data);
+void on_tap_dance_reset(tap_dance_state_t *state, void *user_data);
+
+
+// Tap Danceの動作を処理する関数 (新しい型名を使用)
+void on_tap_dance(tap_dance_state_t *state, void *user_data) {
     if (state->keycode == TD_WIN_D_WIN_H) {
         if (state->count == 1) {
             // 単押し (Tap): Win + D (デスクトップ表示)
@@ -24,7 +30,7 @@ void on_tap_dance(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void on_tap_dance_finished(qk_tap_dance_state_t *state, void *user_data) {
+void on_tap_dance_finished(tap_dance_state_t *state, void *user_data) {
     if (state->keycode == TD_WIN_D_WIN_H) {
         if (state->count == 0) { // countが0の場合はホールド
             // 長押し (Hold): Winキーをホールド状態にする
@@ -33,7 +39,7 @@ void on_tap_dance_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void on_tap_dance_reset(qk_tap_dance_state_t *state, void *user_data) {
+void on_tap_dance_reset(tap_dance_state_t *state, void *user_data) {
     if (state->keycode == TD_WIN_D_WIN_H) {
         // キーが離された時やタイムアウト時に押下状態をリセット
         unregister_code(KC_LGUI);
@@ -41,8 +47,8 @@ void on_tap_dance_reset(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-// tap danceの定義配列
-qk_tap_dance_action_t tap_dance_actions[] = {
+// tap danceの定義配列 (新しい型名を使用)
+tap_dance_action_t tap_dance_actions[] = {
     [TD_WIN_D_WIN_H] = ACTION_TAP_DANCE_FN_ADVANCED(on_tap_dance, on_tap_dance_finished, on_tap_dance_reset),
 };
 
