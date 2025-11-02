@@ -9,7 +9,7 @@ on:
 env:
   KEYBOARD_NAME: "tomtho" # キーボードの名前
   USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
-  FIRMWARE_VARIANT: "default" # ファームウェアのバリアント名 (vial, defaultなど)
+  FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
