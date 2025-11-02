@@ -9,12 +9,12 @@ on:
 env:
   KEYBOARD_NAME: "tomtho" # キーボードの名前
   USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
-  FIRMWARE_VARIANT: "bin" # ファームウェアのバリアント名 (vial, defaultなど)
+  FIRMWARE_VARIANT: "default" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli:latest # QMK 環境を使用
+    container: qmkfm/qmk_cli:latest # QMK CLI環境を使用
     steps:
       # Vial対応QMKを取得
       - name: Checkout Vial QMK Firmware
@@ -23,13 +23,13 @@ jobs:
           repository: vial-kb/vial-qmk
           path: vial-qmk
 
-      # リポジトリをチェックアウト
+      # 自作リポジトリをチェックアウト
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
           path: user_repo
 
-      # キーボードフォルダをVial QMKにリンク
+      # 自作キーボードフォルダをVial QMKにリンク
       - name: Link custom keyboard
         run: |
           ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
