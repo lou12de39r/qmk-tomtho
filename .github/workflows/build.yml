@@ -1,4 +1,4 @@
-name: Build Custom QMK Firmware (Generic)
+name: Build Custom QMK Firmware (Fixed Path)
 
 on:
   push:
@@ -12,10 +12,9 @@ jobs:
 
     # --- ここから設定項目 ---
     env:
-      KEYBOARD_NAME: "tomtho"         # 使用するキーボード名 (例: crkbd, gh60)
+      KEYBOARD_NAME: "tomtho"         # 使用するキーボード名
       KEYMAP_NAME: "vial"             # 使用するキーマップ名
-      # 独自リポジトリ内でのキーマップフォルダの相対パス
-      CUSTOM_MAP_DIR: "tomtho-akdk/qmk_firmware/keyboards/tomtho/keymaps/vial" 
+      # CUSTOM_MAP_DIR は使用しませんが、他の変数設定はそのまま利用します
       VARIANT: ""                     # バリアントが必要な場合 (例: "rev1", "left") はここに入力、不要なら空欄
     # --- ここまで設定項目 ---
 
@@ -43,8 +42,10 @@ jobs:
 
     - name: Copy Custom Keymap to QMK location
       run: |
-        # 環境変数を使用して、独自のキーマップフォルダを公式リポジトリ内にコピー
-        cp -r ${{ env.CUSTOM_MAP_DIR }} qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }}
+        # 固定パスを使用してコピーを実行
+        # コピー元: custom_repo/qmk_firmware/keyboards/tomtho/keymaps/vial
+        # コピー先: qmk_firmware/keyboards/tomtho/keymaps/vial
+        cp -r custom_repo/qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }} qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }}
 
     - name: Build Firmware
       run: |
