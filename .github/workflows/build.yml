@@ -44,7 +44,7 @@ jobs:
     - name: Copy Custom Keymap to QMK location
       run: |
         # 環境変数を使用して、独自のキーマップフォルダを公式リポジトリ内にコピー
-        cp -r custom_repo/${{ env.CUSTOM_MAP_DIR }} qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }}
+        cp -r ${{ env.CUSTOM_MAP_DIR }} qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }}
 
     - name: Build Firmware
       run: |
