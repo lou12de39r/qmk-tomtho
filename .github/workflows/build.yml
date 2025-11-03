@@ -1,75 +1,52 @@
-name: Build Custom QMK Firmware (Fixed Path)
-
+name: Build Vial QMK Firmware # Vial対応ファームウェアを作成
 on:
   push:
     branches:
-      - main # メインブランチ名に合わせて master 等に変更してください
-  workflow_dispatch: # GitHubのUIから手動実行を可能にする
+      - main # mainブランチにpushされたときに実行
+  workflow_dispatch: # Actionsタブから手動で実行できるようにする
+
+# 変数をenvセクションで定義
+env:
+  KEYBOARD_NAME: "tomtho" # キーボードの名前
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho" # ユーザーリポジトリ内のキーボード定義へのパス
+  FIRMWARE_VARIANT: "vial" # ファームウェアのバリアント名 (vial, defaultなど)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # --- ここから設定項目 ---
-    env:
-      KEYBOARD_NAME: "tomtho"         # 使用するキーボード名
-      KEYMAP_NAME: "vial"             # 使用するキーマップ名
-      # CUSTOM_MAP_DIR は使用しませんが、他の変数設定はそのまま利用します
-      VARIANT: ""                     # バリアントが必要な場合 (例: "rev1", "left") はここに入力、不要なら空欄
-    # --- ここまで設定項目 ---
-
+    container: qmkfm/qmk_cli:latest # QMK CLI環境を使用
     steps:
-    - name: Checkout Custom Repository
-      uses: actions/checkout@v4
-      with:
-        path: custom_repo # 独自のカスタムリポジトリを 'custom_repo' フォルダにチェックアウト
+      # Vial対応QMKを取得
+      - name: Checkout Vial QMK Firmware
+        uses: actions/checkout@v4
+        with:
+          repository: vial-kb/vial-qmk
+          path: vial-qmk
 
-    - name: Checkout QMK Firmware Repository
-      uses: actions/checkout@v4
-      with:
-        repository: qmk/qmk_firmware
-        path: qmk_firmware # 公式QMKリポジトリを 'qmk_firmware' フォルダにチェックアウト
-    - name: Debug: List files in custom_repo
-      run: |
-        ls -R custom_repo/
+      # 自作リポジトリをチェックアウト
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: user_repo
 
-
-    - name: Install QMK CLI and Dependencies
-      run: |
-        # Python環境とQMK CLIのインストール
-        sudo apt-get update
-        sudo apt-get install python3-pip -y
-        pip3 install qmk
-        # ビルドに必要な依存関係のインストール
-        cd qmk_firmware
-        qmk setup -y
-
-    - name: Copy Custom Keymap to QMK location
-      run: |
-        # 固定パスを使用してコピーを実行
-        # コピー元: custom_repo/qmk_firmware/keyboards/tomtho/keymaps/vial
-        # コピー先: qmk_firmware/keyboards/tomtho/keymaps/vial
-        cp -r custom_repo/qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }} qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.KEYMAP_NAME }}
-
-    - name: Build Firmware
-      run: |
-        cd qmk_firmware
-        # 環境変数を使用してビルドコマンドを生成
-        BUILD_CMD="qmk compile -kb ${{ env.KEYBOARD_NAME }} -km ${{ env.KEYMAP_NAME }}"
-        
-        # VARIANT が定義されていればコマンドに追加する
-        if [ ! -z "${{ env.VARIANT }}" ]; then
-          BUILD_CMD="$BUILD_CMD -c ${{ env.VARIANT }}"
-        fi
-        
-        echo "Running build command: $BUILD_CMD"
-        $BUILD_CMD
-
-    - name: Upload Firmware Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: qmk-firmware-build-${{ env.KEYBOARD_NAME }}-${{ env.KEYMAP_NAME }}
-        path: |
-          qmk_firmware/*.hex
-          qmk_firmware/*.bin
-          qmk_firmware/*.uf2
+      # 自作キーボードフォルダをVial QMKにリンク
+      - name: Link custom keyboard
+        run: |
+          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
+          "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+      
+      # ファームウェアをビルド
+      - name: Build Vial firmware
+        working-directory: vial-qmk
+        run: |
+          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+      
+      # 成果物をアップロード（.uf2 / .hex / .bin）
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
+          path: |
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
