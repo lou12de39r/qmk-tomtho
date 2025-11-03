@@ -15,7 +15,7 @@ jobs:
       KEYBOARD_NAME: "tomtho"         # 使用するキーボード名 (例: crkbd, gh60)
       KEYMAP_NAME: "vial"             # 使用するキーマップ名
       # 独自リポジトリ内でのキーマップフォルダの相対パス
-      CUSTOM_MAP_DIR: "qmk_firmware/keyboards/tomtho/keymaps/vial" 
+      CUSTOM_MAP_DIR: "tomtho-akdk/qmk_firmware/keyboards/tomtho/keymaps/vial" 
       VARIANT: ""                     # バリアントが必要な場合 (例: "rev1", "left") はここに入力、不要なら空欄
     # --- ここまで設定項目 ---
 
