@@ -30,6 +30,11 @@ jobs:
         repository: qmk/qmk_firmware
         path: qmk_firmware # 公式QMKリポジトリを 'qmk_firmware' フォルダにチェックアウト
 
+    - name: Debug: List files in custom_repo
+      run: |
+        ls -R custom_repo/
+
+
     - name: Install QMK CLI and Dependencies
       run: |
         # Python環境とQMK CLIのインストール
