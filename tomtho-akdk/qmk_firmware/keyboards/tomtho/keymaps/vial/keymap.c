@@ -9,7 +9,6 @@ enum tap_dance_codes {
 };
 
 // --- タップダンス関数のプロトタイプ宣言 ---
-// QMKでは、関数定義の前にプロトタイプ宣言が必要です
 void td_win_d_finished(tap_dance_state_t *state, void *user_data);
 void td_win_d_reset(tap_dance_state_t *state, void *user_data);
 void td_q_f2_finished(tap_dance_state_t *state, void *user_data);
@@ -46,7 +45,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // --- タップダンス関数定義 ---
 
-// TD(TD_WIN_D) の定義: タップで Win、ホールドで Win+D
 void td_win_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
         // 何もしない
@@ -68,7 +66,6 @@ void td_win_d_reset(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-// TD(TD_Q_F2) の定義: タップで Q、ダブルタップで F2
 void td_q_f2_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
         // 何もしない
@@ -86,8 +83,9 @@ void td_q_f2_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 // --- タップダンスの配列定義 ---
-// ACTION_TAP_DANCE_FN_ADVANCED/TD_FN_ADVANCED の代わりに、関数ポインタを直接使用します。
-tap_dance_action_t tap_dance_actions[] = {
+// QMKが内部で tap_dance_actions の外部宣言を行う可能性があるため、
+// 以下の配列をキーマップファイルの一番下に配置し、定義を単純化します。
+const tap_dance_action_t tap_dance_actions[] = {
     // .fn = {on_each_tap, on_dance_finished, on_dance_reset, NULL}
     [TD_WIN_D] = {
         .fn = {NULL, td_win_d_finished, td_win_d_reset, NULL},
