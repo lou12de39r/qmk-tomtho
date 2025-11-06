@@ -1,6 +1,6 @@
-VIA_ENABLE = yes
-VIAL_ENABLE = yes
-VIAL_INSECURE = yes
+# VIA_ENABLE = yes
+# VIAL_ENABLE = yes
+# VIAL_INSECURE = yes
 MOUSEKEY_ENABLE = yes
 #define MK_3_SPEED
 #define MK_MOMENTARY_ACCEL
