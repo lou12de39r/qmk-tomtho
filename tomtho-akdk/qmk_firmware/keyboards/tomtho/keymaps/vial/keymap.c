@@ -95,11 +95,10 @@ const tap_dance_action_t tap_dance_actions[] __attribute__ ((weak)) = {
     },
 };
 
-// ---------------------------------------------------------------- //
-// --- 【追加】コンボの定義 ---
 
-// コンボ配列の定義
-combo_t key_combos[] = {
+// コンボ配列の定義 (weak属性を追加)
+combo_t key_combos[] __attribute__ ((weak)) = { // <--- __attribute__ ((weak)) を追加
     // KC_RGHT と KC_DOWN の同時押しで KC_DEL を実行
     COMBO(arrow_del_combo, KC_DEL),
 };
+
