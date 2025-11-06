@@ -15,6 +15,10 @@ void td_q_f2_finished(tap_dance_state_t *state, void *user_data);
 void td_q_f2_reset(tap_dance_state_t *state, void *user_data);
 
 
+// --- 【追加】コンボのトリガーキー配列の定義 ---
+const uint16_t PROGMEM arrow_del_combo[] = {KC_RGHT, KC_DOWN};
+
+
 // メインのキーマップ定義 (変更なし)
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[0] = LAYOUT(
@@ -44,7 +48,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
-// --- タップダンス関数定義 (変更なし) ---
+// --- タップダンス関数定義 (省略) ---
 void td_win_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
     } else if (state->pressed) {
@@ -78,7 +82,7 @@ void td_q_f2_finished(tap_dance_state_t *state, void *user_data) {
 void td_q_f2_reset(tap_dance_state_t *state, void *user_data) {
 }
 
-// --- タップダンスの配列定義 (weak属性を追加) ---
+// --- タップダンスの配列定義 (変更なし) ---
 const tap_dance_action_t tap_dance_actions[] __attribute__ ((weak)) = {
     // .fn = {on_each_tap, on_dance_finished, on_dance_reset, NULL}
     [TD_WIN_D] = {
@@ -90,3 +94,16 @@ const tap_dance_action_t tap_dance_actions[] __attribute__ ((weak)) = {
         .user_data = NULL
     },
 };
+
+// ---------------------------------------------------------------- //
+// --- 【追加】コンボの定義 ---
+
+// コンボ配列の定義
+combo_t key_combos[] = {
+    // KC_RGHT と KC_DOWN の同時押しで KC_DEL を実行
+    COMBO(arrow_del_combo, KC_DEL),
+};
+
+// コンボの総数 (配列の要素数)
+const uint8_t COMBO_COUNT = 1;
+// ---------------------------------------------------------------- //
