@@ -15,7 +15,7 @@ void td_q_f2_finished(tap_dance_state_t *state, void *user_data);
 void td_q_f2_reset(tap_dance_state_t *state, void *user_data);
 
 
-// メインのキーマップ定義
+// メインのキーマップ定義 (変更なし)
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[0] = LAYOUT(
 		KC_ESC, TD(TD_Q_F2), KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, LT(3, KC_P),
@@ -43,11 +43,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	)
 };
 
-// --- タップダンス関数定義 ---
 
+// --- タップダンス関数定義 (変更なし) ---
 void td_win_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
-        // 何もしない
     } else if (state->pressed) {
         // ホールド: Win + D
         register_code(KC_LGUI);
@@ -59,7 +58,6 @@ void td_win_d_finished(tap_dance_state_t *state, void *user_data) {
 }
 
 void td_win_d_reset(tap_dance_state_t *state, void *user_data) {
-    // ホールドの場合に押された Win+D をリリース
     if (state->pressed) {
         unregister_code(KC_D);
         unregister_code(KC_LGUI);
@@ -68,7 +66,6 @@ void td_win_d_reset(tap_dance_state_t *state, void *user_data) {
 
 void td_q_f2_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
-        // 何もしない
     } else if (state->count == 1) {
         // シングルタップ: Q
         tap_code(KC_Q);
@@ -79,13 +76,10 @@ void td_q_f2_finished(tap_dance_state_t *state, void *user_data) {
 }
 
 void td_q_f2_reset(tap_dance_state_t *state, void *user_data) {
-    // 何もしない
 }
 
-// --- タップダンスの配列定義 ---
-// QMKが内部で tap_dance_actions の外部宣言を行う可能性があるため、
-// 以下の配列をキーマップファイルの一番下に配置し、定義を単純化します。
-const tap_dance_action_t tap_dance_actions[] = {
+// --- タップダンスの配列定義 (weak属性を追加) ---
+const tap_dance_action_t tap_dance_actions[] __attribute__ ((weak)) = {
     // .fn = {on_each_tap, on_dance_finished, on_dance_reset, NULL}
     [TD_WIN_D] = {
         .fn = {NULL, td_win_d_finished, td_win_d_reset, NULL},
