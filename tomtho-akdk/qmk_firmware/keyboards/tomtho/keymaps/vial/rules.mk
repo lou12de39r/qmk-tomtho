@@ -5,3 +5,4 @@ MOUSEKEY_ENABLE = yes
 #define MK_3_SPEED
 #define MK_MOMENTARY_ACCEL
 #define MK_COMBINED
+COMBO_ENABLE = yes
