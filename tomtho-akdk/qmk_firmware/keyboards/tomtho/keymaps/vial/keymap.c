@@ -4,9 +4,17 @@
 
 // カスタムタッピングマクロの定義
 enum tap_dance_codes {
-    TD_WIN_D = 0, // TD(0) に対応
-    TD_Q_F2 = 1,  // TD(2) に対応（コード内では TD(2) がこの番号に対応するようにします）
+    TD_WIN_D = 0,
+    TD_Q_F2 = 1,
 };
+
+// --- タップダンス関数のプロトタイプ宣言 ---
+// QMKの新しいビルドシステムでは、関数定義の前にプロトタイプ宣言が必要です
+void td_win_d_finished(tap_dance_state_t *state, void *user_data);
+void td_win_d_reset(tap_dance_state_t *state, void *user_data);
+void td_q_f2_finished(tap_dance_state_t *state, void *user_data);
+void td_q_f2_reset(tap_dance_state_t *state, void *user_data);
+
 
 // メインのキーマップ定義
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -39,7 +47,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // --- タップダンス定義 ---
 
 // TD(TD_WIN_D) の定義: タップで Win、ホールドで Win+D
-void td_win_d_finished(qk_tap_dance_state_t *state, void *user_data) {
+void td_win_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
         // 何もしない
     } else if (state->pressed) {
@@ -52,7 +60,7 @@ void td_win_d_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void td_win_d_reset(qk_tap_dance_state_t *state, void *user_data) {
+void td_win_d_reset(tap_dance_state_t *state, void *user_data) {
     // ホールドの場合に押された Win+D をリリース
     if (state->pressed) {
         unregister_code(KC_D);
@@ -61,7 +69,7 @@ void td_win_d_reset(qk_tap_dance_state_t *state, void *user_data) {
 }
 
 // TD(TD_Q_F2) の定義: タップで Q、ダブルタップで F2
-void td_q_f2_finished(qk_tap_dance_state_t *state, void *user_data) {
+void td_q_f2_finished(tap_dance_state_t *state, void *user_data) {
     if (state->interrupted || state->count == 0) {
         // 何もしない
     } else if (state->count == 1) {
@@ -73,12 +81,13 @@ void td_q_f2_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void td_q_f2_reset(qk_tap_dance_state_t *state, void *user_data) {
+void td_q_f2_reset(tap_dance_state_t *state, void *user_data) {
     // 何もしない
 }
 
 // タップダンスの配列
-qk_tap_dance_action_t tap_dance_actions[] = {
-    [TD_WIN_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_win_d_finished, td_win_d_reset),
-    [TD_Q_F2] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_q_f2_finished, td_q_f2_reset),
+tap_dance_action_t tap_dance_actions[] = {
+    // ACTION_TAP_DANCE_FN_ADVANCED は TD_FN_ADVANCED に変わりました
+    [TD_WIN_D] = TD_FN_ADVANCED(NULL, td_win_d_finished, td_win_d_reset),
+    [TD_Q_F2] = TD_FN_ADVANCED(NULL, td_q_f2_finished, td_q_f2_reset),
 };
