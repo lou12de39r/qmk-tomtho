@@ -99,6 +99,5 @@ const tap_dance_action_t tap_dance_actions[] __attribute__ ((weak)) = {
 // コンボ配列の定義 (weak属性を削除、標準的な書き方へ)
 combo_t key_combos[] = {
     // KC_RGHT と KC_DOWN の同時押しで KC_DEL を実行
-    COMBO(arrow_del_combo, KC_DEL),
-    COMBO_END // 配列の終端を示す
+    COMBO(arrow_del_combo, KC_DEL)
 };
