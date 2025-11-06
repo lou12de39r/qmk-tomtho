@@ -44,7 +44,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	)
 };
 
-// --- タップダンス定義 ---
+// --- タップダンス関数定義 ---
 
 // TD(TD_WIN_D) の定義: タップで Win、ホールドで Win+D
 void td_win_d_finished(tap_dance_state_t *state, void *user_data) {
@@ -85,9 +85,11 @@ void td_q_f2_reset(tap_dance_state_t *state, void *user_data) {
     // 何もしない
 }
 
-// タップダンスの配列
+// --- タップダンスの配列定義 (TD_ACTION形式を使用) ---
+// 古い QMK バージョンでも互換性のある TD_ACTION() マクロを使って関数を定義します。
 tap_dance_action_t tap_dance_actions[] = {
-    // ACTION_TAP_DANCE_FN_ADVANCED は TD_FN_ADVANCED に変わりました
-    [TD_WIN_D] = TD_FN_ADVANCED(NULL, td_win_d_finished, td_win_d_reset),
-    [TD_Q_F2] = TD_FN_ADVANCED(NULL, td_q_f2_finished, td_q_f2_reset),
+    // td_win_d_finished (NULL, finished, reset)
+    [TD_WIN_D] = TD_ACTION(TD_FN_ADVANCED(NULL, td_win_d_finished, td_win_d_reset)),
+    // td_q_f2_finished (NULL, finished, reset)
+    [TD_Q_F2] = TD_ACTION(TD_FN_ADVANCED(NULL, td_q_f2_finished, td_q_f2_reset)),
 };
