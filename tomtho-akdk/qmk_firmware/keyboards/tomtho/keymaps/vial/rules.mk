@@ -8,4 +8,4 @@ MOUSEKEY_ENABLE = yes
 COMBO_ENABLE = yes
 TAP_DANCE_ENABLE = yes
 # 以下の行は、Vialが独自に tap_dance_actions を生成するのを防ぎます
-TAP_DANCE_USER_ARRAY = yes
+# TAP_DANCE_USER_ARRAY = yes
