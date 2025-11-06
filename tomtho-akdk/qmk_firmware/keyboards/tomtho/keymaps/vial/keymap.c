@@ -103,7 +103,3 @@ combo_t key_combos[] = {
     // KC_RGHT と KC_DOWN の同時押しで KC_DEL を実行
     COMBO(arrow_del_combo, KC_DEL),
 };
-
-// コンボの総数 (配列の要素数)
-const uint8_t COMBO_COUNT = 1;
-// ---------------------------------------------------------------- //
