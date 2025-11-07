@@ -2,8 +2,41 @@
 #include QMK_KEYBOARD_H
 #include "keymap_japanese.h" // 日本語配列キーコードを有効化
 
+// --------------------------------------------------
+// コンボ (Combos) の定義をここに追加します
+// --------------------------------------------------
 
+// 1. コンボを構成する物理キーの座標を定義します
+// 「→」キーは (3, 11) にあります。
+// 「↓」キーは (3, 10) にあります。
+const uint16_t PROGMEM combo_del_keys[] = {
+    // MATRIX_ROW, MATRIX_COL の形式で座標を指定
+    // ここでは keymaps 配列の定義と照らし合わせています
+    // 3行目11列目の KC_RGHT
+    // 3行目10列目の KC_DOWN
+    // 正しい位置はレイアウト定義から確認してください:
+    // KC_LEFT, KC_DOWN, KC_RGHT
+    // 3, 9    3, 10    3, 11
+    
+    // 座標定義
+    3, 10, // KC_DOWN (↓)
+    3, 11, // KC_RGHT (→)
+};
+
+// 2. どのコンボ定義を使うか、コンボ配列を定義します
+combo_t key_combos[] = {
+    // 押下するキーの配列、出力したいキーコード、コンボ名（任意）
+    [COMBO_DEL] = COMBO(combo_del_keys, KC_DEL), 
+};
+
+// コンボの名前を定義（enumで管理）
+enum combos {
+    COMBO_DEL,
+};
+
+// --------------------------------------------------
 // メインのキーマップ定義 (変更なし)
+// --------------------------------------------------
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         [0] = LAYOUT(
                 KC_ESC, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, LT(3, KC_P),
