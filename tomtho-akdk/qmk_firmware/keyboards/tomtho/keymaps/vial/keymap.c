@@ -6,7 +6,7 @@
 // コンボ (Combos) の定義
 // --------------------------------------------------
 
-// コンボの名前を定義（enumで管理）。key_combos_... の定義より前に配置
+// コンボの名前を定義（enumで管理）
 enum combos {
     COMBO_DEL,
     // 他のコンボを追加する場合はここに記述
@@ -27,6 +27,39 @@ combo_t vial_key_combos[] = {
 
 
 // --------------------------------------------------
+// タップダンス (Tap Dance) の定義
+// --------------------------------------------------
+
+// タップダンスの名前を定義（enumで管理）
+enum tap_dances {
+    TD_LGUI_D,
+};
+
+// タップダンスの実行時に呼ばれる関数を定義
+void td_gui_d_finished (qk_tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        // シングルタップの場合: 左Winキー (LGUI) を押す
+        register_code(KC_LGUI);
+    } else if (state->count == 2) {
+        // ダブルタップの場合: LGUI + D を押す
+        register_code(KC_LGUI);
+        register_code(KC_D);
+    }
+}
+
+void td_gui_d_reset (qk_tap_dance_state_t *state, void *user_data) {
+    // タップダンス終了時に押されたキーを離す処理
+    unregister_code(KC_LGUI);
+    unregister_code(KC_D);
+}
+
+// タップダンスの定義配列
+qk_tap_dance_action_t qk_tap_dance_actions[] = {
+    [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(td_gui_d_finished, NULL, td_gui_d_reset),
+};
+
+
+// --------------------------------------------------
 // メインのキーマップ定義
 // --------------------------------------------------
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -34,7 +67,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                 KC_ESC, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, LT(3, KC_P),
                 KC_TAB, KC_A, KC_S, KC_D, KC_F, KC_G, KC_4, KC_5, KC_6, KC_H, KC_J, KC_K, KC_L, KC_MINS,
                 KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_1, KC_2, KC_3, KC_N, KC_M, KC_COMM, KC_UP, RSFT(KC_SLSH),
-                KC_LCTL, KC_LGUI, KC_LOPT, LT(1, KC_CAPS), LT(2, KC_SPC), LT(3, KC_0), KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
+                KC_LCTL, TD(TD_LGUI_D), KC_LOPT, LT(1, KC_CAPS), LT(2, KC_SPC), LT(3, KC_0), KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
         ),
         [1] = LAYOUT(
                 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LSFT(KC_7), LSFT(KC_8), LSFT(KC_9), KC_TRNS, KC_SCLN, KC_QUOT, KC_LBRC, KC_INT3,
@@ -57,10 +90,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // --------------------------------------------------
-// 重要: 新しいコンボ変数をQMKに認識させるためのフック関数
+// QMKにコンボとタップダンスを認識させるためのフック関数
 // --------------------------------------------------
 
-// この関数を追加することで、QMKビルドシステムが新しい名前のコンボ定義を見つけられます
+// コンボのフック関数
 const combo_t *get_combo_index(uint8_t index) {
     switch (index) {
         case COMBO_DEL:
@@ -70,3 +103,6 @@ const combo_t *get_combo_index(uint8_t index) {
             return NULL;
     }
 }
+
+// タップダンスのフック関数 (QMKの標準機能として組み込まれているため、通常この関数は不要ですが、もしリンカーエラーが出る場合はコメントアウトしてください)
+// qk_tap_dance_actions 配列が定義されていればQMKが自動的に認識します。
