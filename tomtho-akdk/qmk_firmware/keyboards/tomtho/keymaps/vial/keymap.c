@@ -6,8 +6,7 @@
 // コンボ (Combos) の定義
 // --------------------------------------------------
 
-// コンボの名前を定義（enumで管理）
-// これを key_combos[] の定義より前に配置します
+// コンボの名前を定義（enumで管理）。key_combos_... の定義より前に配置
 enum combos {
     COMBO_DEL,
     // 他のコンボを追加する場合はここに記述
@@ -20,14 +19,15 @@ const uint16_t PROGMEM combo_del_keys[] = {
 };
 
 // 2. どのコンボ定義を使うか、コンボ配列を定義します
-combo_t key_combos[] = {
+// 変数名をユニークなもの (vial_key_combos) に変更して競合を回避します
+combo_t vial_key_combos[] = {
     // enumで定義した COMBO_DEL をインデックスとして使用します
     [COMBO_DEL] = COMBO(combo_del_keys, KC_DEL), 
 };
 
 
 // --------------------------------------------------
-// メインのキーマップ定義 (この部分は変更ありません)
+// メインのキーマップ定義
 // --------------------------------------------------
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         [0] = LAYOUT(
@@ -55,3 +55,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RCTL(KC_PGUP), KC_TRNS, RCTL(KC_PGDN)
         )
 };
+
+// --------------------------------------------------
+// 重要: 新しいコンボ変数をQMKに認識させるためのフック関数
+// --------------------------------------------------
+
+// この関数を追加することで、QMKビルドシステムが新しい名前のコンボ定義を見つけられます
+const combo_t *get_combo_index(uint8_t index) {
+    switch (index) {
+        case COMBO_DEL:
+            return &vial_key_combos[COMBO_DEL];
+            break;
+        default:
+            return NULL;
+    }
+}
