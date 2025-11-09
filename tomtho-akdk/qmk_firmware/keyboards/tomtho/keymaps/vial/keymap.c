@@ -9,7 +9,7 @@
 // コンボの名前を定義（enumで管理）
 enum combos {
     COMBO_DEL,
-    // QMK/Vialが自動定義する COMBO_COUNT は含めない
+    // COMBO_COUNT は VIAL_COMBO_ENTRIES に自動展開される
 };
 
 // 1. コンボを構成する物理キーの座標を定義します
@@ -18,9 +18,12 @@ const uint16_t PROGMEM combo_del_keys[] = {
     3, 11, // KC_RGHT (→)
 };
 
-// 2. QMK標準のコンボ配列名 (key_combos) を使用
-// COMBO_COUNT は VIAL_COMBO_ENTRIES に自動展開される
-combo_t key_combos[COMBO_COUNT] = {
+// 2. QMK標準のコンボ配列 (key_combos) を extern で宣言（定義はVialに任せる）
+// COMBO_COUNT は QMK/Vial によって定義済み
+extern combo_t key_combos[COMBO_COUNT];
+
+// QMKのカスタム定義用関数 (COMBO_DELの動作を定義)
+const combo_t PROGMEM combo_def_key_combos[] = {
     [COMBO_DEL] = COMBO(combo_del_keys, KC_DEL),
 };
 
@@ -31,7 +34,7 @@ combo_t key_combos[COMBO_COUNT] = {
 // タップダンスの名前を定義（enumで管理）
 enum tap_dances {
     TD_LGUI_D,
-    TD_COUNT // タップダンスの総数を定義（QMK標準の慣習）
+    TD_COUNT // タップダンスの総数を定義（Vialが使用しないため、これは維持）
 };
 
 // --- 関数の前方宣言 ---
@@ -52,16 +55,39 @@ void td_gui_d_finished (tap_dance_state_t *state, void *user_data) {
 void td_gui_d_reset (tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LGUI);
     unregister_code(KC_D);
+    // Dキーが押されたままにならないように、unregister_code(KC_D) も追加しておくと安全です
 }
 
-// タップダンスの定義配列に QMK標準の配列名 (tap_dance_actions) を使用
-tap_dance_action_t tap_dance_actions[TD_COUNT] = {
+// タップダンスの定義配列に QMK標準の配列名 (tap_dance_actions) を extern で宣言
+// TD_COUNT は enum tap_dances で定義されていることを前提とする
+extern tap_dance_action_t tap_dance_actions[TD_COUNT];
+
+// QMKのカスタム定義用配列 (TD_LGUI_Dの動作を定義)
+const tap_dance_action_t PROGMEM tap_dance_actions_def[] = {
     [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(td_gui_d_finished, NULL, td_gui_d_reset),
 };
 
+// --------------------------------------------------
+// キーボードの初期化時にカスタム定義を Vial の配列にコピーする
+// --------------------------------------------------
+
+void keyboard_post_init(void) {
+    // コンボの定義をコピー
+    for (int i = 0; i < sizeof(combo_def_key_combos) / sizeof(combo_t); i++) {
+        key_combos[i] = combo_def_key_combos[i];
+    }
+    
+    // タップダンスの定義をコピー
+    for (int i = 0; i < TD_COUNT; i++) {
+        tap_dance_actions[i] = tap_dance_actions_def[i];
+    }
+    
+    // 既存のキーボード初期化コードがあればここに続く
+}
+
 
 // --------------------------------------------------
-// メインのキーマップ定義
+// メインのキーマップ定義 (省略 - 変更なし)
 // --------------------------------------------------
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
@@ -89,7 +115,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RCTL(KC_PGUP), KC_TRNS, RCTL(KC_PGDN)
     )
 };
-
-// --------------------------------------------------
-// QMK標準の定義を使用するため、フック関数は削除します
-// --------------------------------------------------
