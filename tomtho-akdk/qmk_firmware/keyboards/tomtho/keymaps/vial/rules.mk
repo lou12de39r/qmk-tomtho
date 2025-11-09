@@ -1,5 +1,5 @@
 VIA_ENABLE = yes
-VIAL_ENABLE = yes
+VIAL_ENABLE = no
 VIAL_INSECURE = yes
 MOUSEKEY_ENABLE = yes
 #define MK_3_SPEED
