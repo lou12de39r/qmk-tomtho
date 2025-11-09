@@ -9,7 +9,7 @@
 // コンボの名前を定義（enumで管理）
 enum combos {
     COMBO_DEL,
-    COMBO_COUNT // コンボの総数を定義（QMK標準の慣習）
+    // QMK/Vialが自動定義する COMBO_COUNT は含めない
 };
 
 // 1. コンボを構成する物理キーの座標を定義します
@@ -19,7 +19,7 @@ const uint16_t PROGMEM combo_del_keys[] = {
 };
 
 // 2. QMK標準のコンボ配列名 (key_combos) を使用
-//    Vialはこの配列を認識して設定を適用します
+// COMBO_COUNT は VIAL_COMBO_ENTRIES に自動展開される
 combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DEL] = COMBO(combo_del_keys, KC_DEL),
 };
