@@ -49,14 +49,15 @@ jobs:
           echo "🔍 QMK info check:"
           qmk info -kb ${{ env.KEYBOARD_NAME }} || true
 
-- name: Build QMK firmware
-  run: |
-    echo "🔹 Building QMK firmware..."
-    qmk compile -kb keyboards/tomtho/keyboard.json -km tomtho || (echo "❌ QMK Build failed" && exit 1)
-    echo "=== QMK Build Complete ==="
+      - name: Build QMK firmware
+        run: |
+          echo "🔹 Building QMK firmware..."
+          qmk compile -kb keyboards/tomtho/keyboard.json -km tomtho || (echo "❌ QMK Build failed" && exit 1)
+          echo "=== QMK Build Complete ==="
 
-      - name: Upload artifacts
+
+     - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
-          path: qmk_firmware/.build/
+          path: qmk_firmware/.build
