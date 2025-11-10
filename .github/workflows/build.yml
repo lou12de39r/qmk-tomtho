@@ -1,68 +1,53 @@
-name: Build QMK & Vial Firmware
+name: Build Vial Firmware
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 env:
   KEYBOARD_NAME: "tomtho"
-  QMK_KEYMAP: "tomtho"
-  VIAL_KEYMAP: "vial"
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # ← 実際の構成に合わせて修正！
 
 jobs:
-  build_qmk:
-    name: Build QMK Firmware
+  # ======================================
+  # 🔹 Vial QMK版ファームウェアのビルド
+  # ======================================
+  build_vial:
+    name: Build Vial Firmware
     runs-on: ubuntu-latest
     container: qmkfm/qmk_cli:latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Vial QMK
         uses: actions/checkout@v4
         with:
-          path: repo
+          repository: vial-kb/vial-qmk
+          path: vial-qmk
 
-      - name: Prepare QMK folder
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: user_repo
+
+      - name: Copy custom keyboard (instead of symlink)
         run: |
-          echo "🧩 Copying keyboard folder to QMK directory..."
-          mkdir -p qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}
-          cp -r repo/${{ env.USER_REPO_PATH }}/* qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/
-          echo "✅ Copied tomtho sources"
-          ls -R qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }} | head -n 40
-
-      - name: Verify keyboard files
+          mkdir -p vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}
+          cp -r user_repo/${{ env.USER_REPO_PATH }}/* \
+                vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}/
+          echo "✅ Copied custom keyboard files."
+      - name: Build Vial firmware
+        working-directory: vial-qmk
         run: |
-          if [ ! -f "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/rules.mk" ]; then
-            echo "❌ rules.mk not found in keyboard folder!"
-            exit 1
-          fi
-          if [ ! -f "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/config.h" ]; then
-            echo "❌ config.h not found in keyboard folder!"
-            exit 1
-          fi
-          if [ ! -d "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.QMK_KEYMAP }}" ]; then
-            echo "❌ keymaps/${{ env.QMK_KEYMAP }} not found!"
-            exit 1
-          fi
-          echo "✅ Folder structure OK"
-
-      - name: Initialize QMK environment
-        working-directory: qmk_firmware
+          make ${{ env.KEYBOARD_NAME }}:vial || (echo "❌ Build failed" && exit 1)
+          echo "=== Build Complete ==="
+          find -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -print
+      - name: Collect artifacts
         run: |
-          qmk setup --yes
-          echo "🔍 QMK info check:"
-          qmk info -kb ${{ env.KEYBOARD_NAME }} || true
-
-      - name: Build QMK firmware
-        working-directory: qmk_firmware
-        run: |
-          echo "🔹 Building QMK firmware..."
-          qmk compile -kb ${{ env.KEYBOARD_NAME }} -km ${{ env.QMK_KEYMAP }} || (echo "❌ QMK Build failed" && exit 1)
-          echo "=== QMK Build Complete ==="
-          find . -type f \( -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -print || true
-
-      - name: Upload artifacts
+          mkdir -p artifacts
+          find vial-qmk/.build -type f \( -name "${{ env.KEYBOARD_NAME }}_vial.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \; || true
+      - name: Upload Vial firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
-          path: qmk_firmware/.build
+          name: ${{ env.KEYBOARD_NAME }}-vial-firmware
+          path: artifacts/
