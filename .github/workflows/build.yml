@@ -57,7 +57,6 @@ jobs:
             qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
             qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
             qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
-          if-no-files-found: ignore
 
 
   # -------------------------
@@ -106,4 +105,3 @@ jobs:
             vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
             vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
             vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
-          if-no-files-found: ignore
