@@ -32,8 +32,12 @@ jobs:
 
       - name: Verify keyboard files
         run: |
-          if [ ! -f "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keyboard.json" ]; then
-            echo "❌ keyboard.json not found in keyboard folder!"
+          if [ ! -f "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/rules.mk" ]; then
+            echo "❌ rules.mk not found in keyboard folder!"
+            exit 1
+          fi
+          if [ ! -f "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/config.h" ]; then
+            echo "❌ config.h not found in keyboard folder!"
             exit 1
           fi
           if [ ! -d "qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/keymaps/${{ env.QMK_KEYMAP }}" ]; then
@@ -47,15 +51,17 @@ jobs:
         run: |
           qmk setup --yes
           echo "🔍 QMK info check:"
-          qmk info -kb keyboards/tomtho/keyboard.json || true
+          qmk info -kb ${{ env.KEYBOARD_NAME }} || true
 
       - name: Build QMK firmware
+        working-directory: qmk_firmware
         run: |
           echo "🔹 Building QMK firmware..."
-          qmk compile -kb keyboards/tomtho/keyboard.json -km tomtho || (echo "❌ QMK Build failed" && exit 1)
+          qmk compile -kb ${{ env.KEYBOARD_NAME }} -km ${{ env.QMK_KEYMAP }} || (echo "❌ QMK Build failed" && exit 1)
           echo "=== QMK Build Complete ==="
+          find . -type f \( -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -print || true
 
-      - name: Upload artifacts   # ✅ ← インデント修正済み！
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
