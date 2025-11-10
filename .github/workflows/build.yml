@@ -54,9 +54,9 @@ jobs:
         with:
           name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
           path: |
-            qmk-firmware/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            qmk-firmware/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            qmk-firmware/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            $(pwd)/qmk-firmware/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            $(pwd)/qmk-firmware/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            $(pwd)/qmk-firmware/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
 
   # -------------------------
   # Vial対応版ビルドジョブ
@@ -101,6 +101,6 @@ jobs:
         with:
           name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
           path: |
-            vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            $(pwd)/vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            $(pwd)/vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
+            $(pwd)/vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
