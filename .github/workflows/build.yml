@@ -1,57 +1,54 @@
+
 name: Build Vial Firmware
 on:
-push:
-branches:
-- main
-workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 env:
-KEYBOARD_NAME: "tomtho"
-USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # ← 実際の構成に合わせて修正！
+  KEYBOARD_NAME: "tomtho"
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # ← 実際の構成に合わせて修正！
 
 jobs:
+  # ======================================
+  # 🔹 Vial QMK版ファームウェアのビルド
+  # ======================================
+  build_vial:
+    name: Build Vial Firmware
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli:latest
 
-======================================
+    steps:
+      - name: Checkout Vial QMK
+        uses: actions/checkout@v4
+        with:
+          repository: vial-kb/vial-qmk
+          path: vial-qmk
 
-🔹 Vial QMK版ファームウェアのビルド
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: user_repo
 
-======================================
-
-build_vial:
-name: Build Vial Firmware
-runs-on: ubuntu-latest
-container: qmkfm/qmk_cli:latest
-
-steps:  
-  - name: Checkout Vial QMK  
-    uses: actions/checkout@v4  
-    with:  
-      repository: vial-kb/vial-qmk  
-      path: vial-qmk  
-
-  - name: Checkout user repo  
-    uses: actions/checkout@v4  
-    with:  
-      path: user_repo  
-
-  - name: Copy custom keyboard (instead of symlink)  
-    run: |  
-      mkdir -p vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}  
-      cp -r user_repo/${{ env.USER_REPO_PATH }}/* \  
-            vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}/  
-      echo "✅ Copied custom keyboard files."  
-  - name: Build Vial firmware  
-    working-directory: vial-qmk  
-    run: |  
-      make ${{ env.KEYBOARD_NAME }}:vial || (echo "❌ Build failed" && exit 1)  
-      echo "=== Build Complete ==="  
-      find -type f -name "*.uf2" -o -name "*.hex" -o -name "*.bin" -print  
-  - name: Collect artifacts  
-    run: |  
-      mkdir -p artifacts  
-      find vial-qmk/.build -type f -name "${{ env.KEYBOARD_NAME }}_vial.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" -exec cp {} artifacts/ \; || true  
-  - name: Upload Vial firmware artifact  
-    uses: actions/upload-artifact@v4  
-    with:  
-      name: ${{ env.KEYBOARD_NAME }}-vial-firmware  
-      path: artifacts/
+      - name: Copy custom keyboard (instead of symlink)
+        run: |
+          mkdir -p vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}
+          cp -r user_repo/${{ env.USER_REPO_PATH }}/* \
+                vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}/
+          echo "✅ Copied custom keyboard files."
+      - name: Build Vial firmware
+        working-directory: vial-qmk
+        run: |
+          make ${{ env.KEYBOARD_NAME }}:vial || (echo "❌ Build failed" && exit 1)
+          echo "=== Build Complete ==="
+          find -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -print
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifacts
+          find vial-qmk/.build -type f \( -name "${{ env.KEYBOARD_NAME }}_vial.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \; || true
+      - name: Upload Vial firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.KEYBOARD_NAME }}-vial-firmware
+          path: artifacts/
