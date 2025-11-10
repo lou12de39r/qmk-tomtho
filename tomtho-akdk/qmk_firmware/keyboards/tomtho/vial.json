@@ -1,0 +1,6 @@
+{
+  "keyboard_name": "tomtho",
+  "manufacturer": "T.tom",
+  "matrix": { "rows": 4, "cols": 14 },
+  "layouts": { "labels": [["Default", "LAYOUT"]], "keymap": [] }
+}
