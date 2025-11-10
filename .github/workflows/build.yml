@@ -54,9 +54,9 @@ jobs:
         with:
           name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
           path: |
-            tomtho-akdk/qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            tomtho-akdk/qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            tomtho-akdk/qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            qmk-tomtho/${{ env.USER_REPO_PATH }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            qmk-tomtho/${{ env.USER_REPO_PATH }}_${{ env.FIRMWARE_VARIANT }}.hex
+            qmk-tomtho/${{ env.USER_REPO_PATH }}_${{ env.FIRMWARE_VARIANT }}.bin
 
   # -------------------------
   # Vial対応版ビルドジョブ
@@ -101,6 +101,6 @@ jobs:
         with:
           name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
           path: |
-            tomtho-akdk/vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            tomtho-akdk/vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            tomtho-akdk/vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            qmk-tomtho/${{ env.USER_REPO_PATH }}_${{ env.FIRMWARE_VARIANT }}.uf2
+            qmk-tomtho/${{ env.USER_REPO_PATH }}_${{ env.FIRMWARE_VARIANT }}.hex
+            qmk-tomtho/${{ env.USER_REPO_PATH }}_${{ env.FIRMWARE_VARIANT }}.bin
