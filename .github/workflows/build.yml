@@ -1,4 +1,4 @@
-name: Build Vial QMK Firmware # Vial対応ファームウェアを作成
+name: Build QMK and Vial Firmware
 on:
   push:
     branches:
@@ -8,40 +8,94 @@ on:
 env:
   KEYBOARD_NAME: "tomtho"
   USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"
-  FIRMWARE_VARIANT: "vial"
 
 jobs:
-  build:
+  # ======================================
+  # 🔹 Vial QMK版ファームウェアのビルド
+  # ======================================
+  build_vial:
+    name: Build Vial Firmware
     runs-on: ubuntu-latest
     container: qmkfm/qmk_cli:latest
 
     steps:
-      - name: Checkout Vial QMK Firmware
+      - name: Checkout Vial QMK
         uses: actions/checkout@v4
         with:
           repository: vial-kb/vial-qmk
-          path: vial-qmk
+          path: /__w/qmk-tomtho/qmk-tomtho/vial-qmk
 
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
-          path: user_repo
+          path: /__w/qmk-tomtho/qmk-tomtho/user_repo
 
       - name: Link custom keyboard
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
-          "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+          ln -s "/__w/qmk-tomtho/qmk-tomtho/user_repo/${{ env.USER_REPO_PATH }}" \
+                "/__w/qmk-tomtho/qmk-tomtho/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
 
       - name: Build Vial firmware
-        working-directory: vial-qmk
+        working-directory: /__w/qmk-tomtho/qmk-tomtho/vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+          make ${{ env.KEYBOARD_NAME }}:vial
+          echo "=== Build Complete ==="
+          ls -lh /__w/qmk-tomtho/qmk-tomtho/vial-qmk/.build/
 
-      - name: Upload firmware artifact
+      - name: Copy firmware to root
+        run: |
+          cp /__w/qmk-tomtho/qmk-tomtho/vial-qmk/.build/${{ env.KEYBOARD_NAME }}_vial.* /__w/qmk-tomtho/qmk-tomtho/
+
+      - name: Upload Vial firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
+          name: ${{ env.KEYBOARD_NAME }}-vial-firmware
           path: |
-            vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            vial-qmk/.build/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_vial.uf2
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_vial.hex
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_vial.bin
+
+  # ======================================
+  # 🔹 通常QMK版ファームウェアのビルド
+  # ======================================
+  build_qmk:
+    name: Build QMK Firmware
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli:latest
+
+    steps:
+      - name: Checkout QMK
+        uses: actions/checkout@v4
+        with:
+          repository: qmk/qmk_firmware
+          path: /__w/qmk-tomtho/qmk-tomtho/qmk
+
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: /__w/qmk-tomtho/qmk-tomtho/user_repo
+
+      - name: Link custom keyboard
+        run: |
+          ln -s "/__w/qmk-tomtho/qmk-tomtho/user_repo/${{ env.USER_REPO_PATH }}" \
+                "/__w/qmk-tomtho/qmk-tomtho/qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+
+      - name: Build QMK firmware
+        working-directory: /__w/qmk-tomtho/qmk-tomtho/qmk
+        run: |
+          make ${{ env.KEYBOARD_NAME }}:default
+          echo "=== Build Complete ==="
+          ls -lh /__w/qmk-tomtho/qmk-tomtho/qmk/.build/
+
+      - name: Copy firmware to root
+        run: |
+          cp /__w/qmk-tomtho/qmk-tomtho/qmk/.build/${{ env.KEYBOARD_NAME }}_default.* /__w/qmk-tomtho/qmk-tomtho/
+
+      - name: Upload QMK firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
+          path: |
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_default.uf2
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_default.hex
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_default.bin
