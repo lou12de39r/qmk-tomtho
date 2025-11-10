@@ -9,12 +9,12 @@ env:
   KEYBOARD_NAME: "tomtho"
   QMK_KEYMAP: "tomtho"
   VIAL_KEYMAP: "vial"
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # adjust if different
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # ← 実際の構成に合わせて調整
 
 jobs:
-  # --------------------------------------
-  # QMK: build standard QMK firmware (from repo keymap)
-  # --------------------------------------
+  # ================================
+  # 🔹 QMK標準ファームウェアのビルド
+  # ================================
   build_qmk:
     name: Build QMK Firmware
     runs-on: ubuntu-latest
@@ -24,20 +24,23 @@ jobs:
       - name: Checkout repository (user QMK firmware)
         uses: actions/checkout@v4
         with:
-          path: qmk_firmware
+          path: repo
 
-      - name: Show qmk directory
+      - name: Prepare QMK folder
         run: |
-          echo "Files at repo root:"
-          ls -la
+          echo "🧩 Preparing QMK directory structure..."
+          mkdir -p qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}
+          cp -r repo/${{ env.USER_REPO_PATH }}/* qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/
+          echo "✅ Copied keyboard sources to qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }}/"
+          ls -R qmk_firmware/keyboards/${{ env.KEYBOARD_NAME }} | head -n 30
 
-      - name: Set up QMK environment
+      - name: Initialize QMK environment
+        working-directory: qmk_firmware
         run: |
-          cd qmk_firmware
-          # initialize qmk cli environment
           qmk setup --yes
+          qmk info -kb ${{ env.KEYBOARD_NAME }} || true
 
-      - name: Build QMK firmware (.hex/.uf2/.bin)
+      - name: Build QMK firmware
         working-directory: qmk_firmware
         run: |
           echo "🔹 Building QMK firmware: keyboard=${{ env.KEYBOARD_NAME }}, keymap=${{ env.QMK_KEYMAP }}"
@@ -49,7 +52,6 @@ jobs:
         working-directory: qmk_firmware
         run: |
           mkdir -p artifacts
-          # copy from .build (qmk cli) or other outputs
           find . -type f \( -path "./.build/*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \; || true
           echo "Artifacts:"
           ls -la artifacts || true
@@ -60,9 +62,9 @@ jobs:
           name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
           path: qmk_firmware/artifacts/
 
-  # --------------------------------------
-  # Vial: build using vial-qmk repo (copy keyboard into vial-qmk/keyboards/)
-  # --------------------------------------
+  # ================================
+  # 🔹 Vial版ファームウェアのビルド
+  # ================================
   build_vial:
     name: Build Vial Firmware
     runs-on: ubuntu-latest
@@ -80,15 +82,14 @@ jobs:
         with:
           path: user_repo
 
-      - name: Copy custom keyboard into vial-qmk (instead of symlink)
+      - name: Copy custom keyboard into vial-qmk
         run: |
-          set -e
-          echo "Copying keyboard files from user_repo/${{ env.USER_REPO_PATH }} to vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+          echo "🧩 Copying keyboard files..."
           mkdir -p vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}
           cp -r user_repo/${{ env.USER_REPO_PATH }}/* vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}/
-          echo "✅ Copied custom keyboard files for Vial."
+          echo "✅ Copied tomtho sources for Vial build"
 
-      - name: Build Vial firmware (make keyboard:vial)
+      - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
           echo "🔹 Building Vial firmware..."
@@ -101,7 +102,6 @@ jobs:
         run: |
           mkdir -p artifacts
           find . -type f \( -name "${{ env.KEYBOARD_NAME }}_vial.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \; || true
-          echo "Artifacts:"
           ls -la artifacts || true
 
       - name: Upload Vial firmware artifact
