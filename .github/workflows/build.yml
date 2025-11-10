@@ -23,36 +23,37 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: vial-kb/vial-qmk
-          path: vial-qmk
+          path: /__w/qmk-tomtho/qmk-tomtho/vial-qmk
 
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
-          path: user_repo
+          path: /__w/qmk-tomtho/qmk-tomtho/user_repo
 
-      - name: Link custom keyboard
+      - name: Copy custom keyboard (instead of symlink)
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
-                "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+          mkdir -p /__w/qmk-tomtho/qmk-tomtho/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}
+          cp -r /__w/qmk-tomtho/qmk-tomtho/user_repo/${{ env.USER_REPO_PATH }}/* \
+                /__w/qmk-tomtho/qmk-tomtho/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}/
+          echo "✅ Copied custom keyboard files."
 
       - name: Build Vial firmware
-        working-directory: vial-qmk
+        working-directory: /__w/qmk-tomtho/qmk-tomtho/vial-qmk
         run: |
           make ${{ env.KEYBOARD_NAME }}:vial
           echo "=== Build Complete ==="
-          find vial-qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
+          find .build/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
 
-      - name: Copy firmware to root
+      - name: Collect artifacts
         run: |
-          mkdir -p ./artifacts
-          find vial-qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) \
-            -exec cp {} ./artifacts/ \;
+          mkdir -p /__w/qmk-tomtho/qmk-tomtho/artifacts
+          cp .build/${{ env.KEYBOARD_NAME }}_vial.* /__w/qmk-tomtho/qmk-tomtho/artifacts/ || true
 
       - name: Upload Vial firmware artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD_NAME }}-vial-firmware
-          path: ./artifacts
+          path: /__w/qmk-tomtho/qmk-tomtho/artifacts/
 
   # ======================================
   # 🔹 通常QMK版ファームウェアのビルド
@@ -67,33 +68,34 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: qmk/qmk_firmware
-          path: qmk
+          path: /__w/qmk-tomtho/qmk-tomtho/qmk
 
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
-          path: user_repo
+          path: /__w/qmk-tomtho/qmk-tomtho/user_repo
 
-      - name: Link custom keyboard
+      - name: Copy custom keyboard (instead of symlink)
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
-                "$(pwd)/qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+          mkdir -p /__w/qmk-tomtho/qmk-tomtho/qmk/keyboards/${{ env.KEYBOARD_NAME }}
+          cp -r /__w/qmk-tomtho/qmk-tomtho/user_repo/${{ env.USER_REPO_PATH }}/* \
+                /__w/qmk-tomtho/qmk-tomtho/qmk/keyboards/${{ env.KEYBOARD_NAME }}/
+          echo "✅ Copied custom keyboard files."
 
       - name: Build QMK firmware
-        working-directory: qmk
+        working-directory: /__w/qmk-tomtho/qmk-tomtho/qmk
         run: |
           make ${{ env.KEYBOARD_NAME }}:default
           echo "=== Build Complete ==="
-          find qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
+          find .build/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
 
-      - name: Copy firmware to root
+      - name: Collect artifacts
         run: |
-          mkdir -p ./artifacts
-          find qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) \
-            -exec cp {} ./artifacts/ \;
+          mkdir -p /__w/qmk-tomtho/qmk-tomtho/artifacts
+          cp .build/${{ env.KEYBOARD_NAME }}_default.* /__w/qmk-tomtho/qmk-tomtho/artifacts/ || true
 
       - name: Upload QMK firmware artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
-          path: ./artifacts
+          path: /__w/qmk-tomtho/qmk-tomtho/artifacts/
