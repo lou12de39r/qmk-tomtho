@@ -1,5 +1,4 @@
-name: Build QMK & Vial Firmware
-
+name: Build QMK and Vial Firmware
 on:
   push:
     branches:
@@ -7,101 +6,96 @@ on:
   workflow_dispatch:
 
 env:
-  KEYBOARD_NAME: "tomtho"  # キーボード名
+  KEYBOARD_NAME: "tomtho"
   USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"
 
 jobs:
-  # -------------------------
-  # 通常QMKビルドジョブ
-  # -------------------------
-  build_qmk:
-    name: Build QMK Firmware (no Vial)
-    runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli:latest
-
-    env:
-      FIRMWARE_VARIANT: "default"
-
-    steps:
-      # QMK公式リポジトリを取得
-      - name: Checkout QMK Firmware
-        uses: actions/checkout@v4
-        with:
-          repository: qmk/qmk_firmware
-          path: qmk-firmware
-
-      # 自作キーボードリポジトリを取得
-      - name: Checkout user repo
-        uses: actions/checkout@v4
-        with:
-          path: user_repo
-
-      # 自作キーボードフォルダをリンク
-      - name: Link custom keyboard
-        run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
-          "$(pwd)/qmk-firmware/keyboards/${{ env.KEYBOARD_NAME }}"
-
-      # ビルド
-      - name: Build QMK firmware
-        working-directory: qmk-firmware
-        run: |
-          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
-
-# 成果物アップロード
-      - name: Upload QMK firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
-          path: |
-            qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            qmk-firmware/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
-
-
-  # -------------------------
-  # Vial対応版ビルドジョブ
-  # -------------------------
+  # ======================================
+  # 🔹 Vial QMK版ファームウェアのビルド
+  # ======================================
   build_vial:
     name: Build Vial Firmware
     runs-on: ubuntu-latest
     container: qmkfm/qmk_cli:latest
 
-    env:
-      FIRMWARE_VARIANT: "vial"
-
     steps:
-      # Vial対応QMKを取得
-      - name: Checkout Vial QMK Firmware
+      - name: Checkout Vial QMK
         uses: actions/checkout@v4
         with:
           repository: vial-kb/vial-qmk
-          path: vial-qmk
+          path: /__w/qmk-tomtho/qmk-tomtho/vial-qmk
 
-      # 自作キーボードリポジトリを取得
       - name: Checkout user repo
         uses: actions/checkout@v4
         with:
-          path: user_repo
+          path: /__w/qmk-tomtho/qmk-tomtho/user_repo
 
-      # 自作キーボードフォルダをリンク
       - name: Link custom keyboard
         run: |
-          ln -s "$(pwd)/user_repo/${{ env.USER_REPO_PATH }}" \
-          "$(pwd)/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+          ln -s "/__w/qmk-tomtho/qmk-tomtho/user_repo/${{ env.USER_REPO_PATH }}" \
+                "/__w/qmk-tomtho/qmk-tomtho/vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}"
 
-      # Vialファームウェアをビルド
       - name: Build Vial firmware
-        working-directory: vial-qmk
+        working-directory: /__w/qmk-tomtho/qmk-tomtho/vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:${{ env.FIRMWARE_VARIANT }}
+          make ${{ env.KEYBOARD_NAME }}:vial
+          echo "=== Build Complete ==="
+          ls -lh /__w/qmk-tomtho/qmk-tomtho/vial-qmk/.build/
 
-      # 成果物アップロード
-      - name: Upload Vial firmware
+      - name: Copy firmware to root
+        run: |
+          cp /__w/qmk-tomtho/qmk-tomtho/vial-qmk/.build/${{ env.KEYBOARD_NAME }}_vial.* /__w/qmk-tomtho/qmk-tomtho/
+
+      - name: Upload Vial firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KEYBOARD_NAME }}-${{ env.FIRMWARE_VARIANT }}-firmware
+          name: ${{ env.KEYBOARD_NAME }}-vial-firmware
           path: |
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.uf2
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.hex
-            vial-qmk/${{ env.KEYBOARD_NAME }}_${{ env.FIRMWARE_VARIANT }}.bin
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_vial.uf2
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_vial.hex
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_vial.bin
+
+  # ======================================
+  # 🔹 通常QMK版ファームウェアのビルド
+  # ======================================
+  build_qmk:
+    name: Build QMK Firmware
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli:latest
+
+    steps:
+      - name: Checkout QMK
+        uses: actions/checkout@v4
+        with:
+          repository: qmk/qmk_firmware
+          path: /__w/qmk-tomtho/qmk-tomtho/qmk
+
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: /__w/qmk-tomtho/qmk-tomtho/user_repo
+
+      - name: Link custom keyboard
+        run: |
+          ln -s "/__w/qmk-tomtho/qmk-tomtho/user_repo/${{ env.USER_REPO_PATH }}" \
+                "/__w/qmk-tomtho/qmk-tomtho/qmk/keyboards/${{ env.KEYBOARD_NAME }}"
+
+      - name: Build QMK firmware
+        working-directory: /__w/qmk-tomtho/qmk-tomtho/qmk
+        run: |
+          make ${{ env.KEYBOARD_NAME }}:default
+          echo "=== Build Complete ==="
+          ls -lh /__w/qmk-tomtho/qmk-tomtho/qmk/.build/
+
+      - name: Copy firmware to root
+        run: |
+          cp /__w/qmk-tomtho/qmk-tomtho/qmk/.build/${{ env.KEYBOARD_NAME }}_default.* /__w/qmk-tomtho/qmk-tomtho/
+
+      - name: Upload QMK firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
+          path: |
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_default.uf2
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_default.hex
+            /__w/qmk-tomtho/qmk-tomtho/${{ env.KEYBOARD_NAME }}_default.bin
