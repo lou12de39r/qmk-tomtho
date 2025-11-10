@@ -40,12 +40,12 @@ jobs:
         run: |
           make ${{ env.KEYBOARD_NAME }}:vial
           echo "=== Build Complete ==="
-          find .build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
+          find vial-qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
 
       - name: Copy firmware to root
         run: |
           mkdir -p ./artifacts
-          find vial-qmk/.build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) \
+          find vial-qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) \
             -exec cp {} ./artifacts/ \;
 
       - name: Upload Vial firmware artifact
@@ -84,12 +84,12 @@ jobs:
         run: |
           make ${{ env.KEYBOARD_NAME }}:default
           echo "=== Build Complete ==="
-          find .build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
+          find qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -ls || true
 
       - name: Copy firmware to root
         run: |
           mkdir -p ./artifacts
-          find qmk/.build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) \
+          find qmk/ -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) \
             -exec cp {} ./artifacts/ \;
 
       - name: Upload QMK firmware artifact
