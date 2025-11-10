@@ -1,0 +1,7 @@
+{
+    "name": "tomtho",
+    "vendorId": "0xFEED",
+    "productId": "0x0000",
+    "matrix": { "rows": 4, "cols": 14 },
+    "layouts": { "keymap": [] }
+}
