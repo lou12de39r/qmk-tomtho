@@ -1,4 +1,4 @@
-name: Build Vial Firmware
+name: Build QMK & Vial Firmware
 on:
   push:
     branches:
@@ -7,11 +7,46 @@ on:
 
 env:
   KEYBOARD_NAME: "tomtho"
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # ← 実際の構成に合わせて修正！
+  QMK_KEYMAP: "tomtho"
+  VIAL_KEYMAP: "vial"
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware"
 
 jobs:
   # ======================================
-  # 🔹 Vial QMK版ファームウェアのビルド
+  # 🔹 QMK Firmware ビルド
+  # ======================================
+  build_qmk:
+    name: Build QMK Firmware
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli:latest
+
+    steps:
+      - name: Checkout user repo
+        uses: actions/checkout@v4
+        with:
+          path: qmk_firmware
+
+      - name: Set up QMK environment
+        run: |
+          cd qmk_firmware
+          qmk setup
+
+      - name: Build QMK firmware
+        working-directory: qmk_firmware
+        run: |
+          echo "🔹 Building QMK firmware..."
+          qmk compile -kb ${{ env.KEYBOARD_NAME }} -km ${{ env.QMK_KEYMAP }} || (echo "❌ QMK Build failed" && exit 1)
+          mkdir -p artifacts
+          find . -type f \( -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \;
+
+      - name: Upload QMK firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
+          path: artifacts/
+
+  # ======================================
+  # 🔹 Vial Firmware ビルド
   # ======================================
   build_vial:
     name: Build Vial Firmware
@@ -30,24 +65,20 @@ jobs:
         with:
           path: user_repo
 
-      - name: Copy custom keyboard (instead of symlink)
+      - name: Copy custom keyboard for Vial
         run: |
           mkdir -p vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}
-          cp -r user_repo/${{ env.USER_REPO_PATH }}/* \
+          cp -r user_repo/${{ env.USER_REPO_PATH }}/keyboards/${{ env.KEYBOARD_NAME }}/* \
                 vial-qmk/keyboards/${{ env.KEYBOARD_NAME }}/
-          echo "✅ Copied custom keyboard files."
+          echo "✅ Copied custom keyboard for Vial."
 
       - name: Build Vial firmware
         working-directory: vial-qmk
         run: |
-          make ${{ env.KEYBOARD_NAME }}:vial || (echo "❌ Build failed" && exit 1)
-          echo "=== Build Complete ==="
-          find -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -print
-
-      - name: Collect artifacts
-        run: |
+          echo "🔹 Building Vial firmware..."
+          make ${{ env.KEYBOARD_NAME }}:vial || (echo "❌ Vial Build failed" && exit 1)
           mkdir -p artifacts
-          find vial-qmk/.build -type f \( -name "${{ env.KEYBOARD_NAME }}_vial.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \; || true
+          find . -type f \( -name "${{ env.KEYBOARD_NAME }}_vial.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \;
 
       - name: Upload Vial firmware artifact
         uses: actions/upload-artifact@v4
