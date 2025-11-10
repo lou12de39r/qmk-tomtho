@@ -1,4 +1,4 @@
-name: Build QMK and Vial Firmware
+name: Build Vial Firmware
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
 
 env:
   KEYBOARD_NAME: "tomtho"
-  USER_REPO_PATH: "tomtho-akdk/keyboards/tomtho"  # ← 実際の構成に合わせて修正！
+  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"  # ← 実際の構成に合わせて修正！
 
 jobs:
   # ======================================
@@ -42,7 +42,7 @@ jobs:
         run: |
           make ${{ env.KEYBOARD_NAME }}:vial || (echo "❌ Build failed" && exit 1)
           echo "=== Build Complete ==="
-          find .build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -print
+          find -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -print
 
       - name: Collect artifacts
         run: |
@@ -53,49 +53,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.KEYBOARD_NAME }}-vial-firmware
-          path: artifacts/
-
-  # ======================================
-  # 🔹 通常QMK版ファームウェアのビルド
-  # ======================================
-  build_qmk:
-    name: Build QMK Firmware
-    runs-on: ubuntu-latest
-    container: qmkfm/qmk_cli:latest
-
-    steps:
-      - name: Checkout QMK
-        uses: actions/checkout@v4
-        with:
-          repository: qmk/qmk_firmware
-          path: qmk
-
-      - name: Checkout user repo
-        uses: actions/checkout@v4
-        with:
-          path: user_repo
-
-      - name: Copy custom keyboard (instead of symlink)
-        run: |
-          mkdir -p qmk/keyboards/${{ env.KEYBOARD_NAME }}
-          cp -r user_repo/${{ env.USER_REPO_PATH }}/* \
-                qmk/keyboards/${{ env.KEYBOARD_NAME }}/
-          echo "✅ Copied custom keyboard files."
-
-      - name: Build QMK firmware
-        working-directory: qmk
-        run: |
-          make ${{ env.KEYBOARD_NAME }}:default || (echo "❌ Build failed" && exit 1)
-          echo "=== Build Complete ==="
-          find .build -type f \( -name "*.uf2" -o -name "*.hex" -o -name "*.bin" \) -print
-
-      - name: Collect artifacts
-        run: |
-          mkdir -p artifacts
-          find qmk/.build -type f \( -name "${{ env.KEYBOARD_NAME }}_default.*" -o -name "*.hex" -o -name "*.bin" -o -name "*.uf2" \) -exec cp {} artifacts/ \; || true
-
-      - name: Upload QMK firmware artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.KEYBOARD_NAME }}-qmk-firmware
           path: artifacts/
