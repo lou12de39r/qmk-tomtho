@@ -7,7 +7,7 @@ on:
 
 env:
   KEYBOARD_NAME: "tomtho"
-  USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"
+  USER_REPO_PATH: "keyboards/tomtho"  # ← ここを修正！
 
 jobs:
   # ======================================
