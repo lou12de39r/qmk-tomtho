@@ -3,7 +3,6 @@
 #include "process_tap_dance.h"
 #include "keymap_japanese.h"
 
-
 // ==========================================================
 // 🔸 タップダンス設定
 // ==========================================================
@@ -12,9 +11,23 @@
 enum {
     TD_LGUI_D = 0,   // LGUI / LGUI+D
     TD_SAMPLE2,       // 例: A / Ctrl+A
+    TD_ESC_CAPS,      // 1回ESC / 2回CapsLock
 };
 
-// タップダンスの動作定義
+// 🔹 TD_ESC_CAPS の動作定義
+void dance_esc_caps_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        tap_code(KC_ESC);
+    } else if (state->count == 2) {
+        tap_code(KC_CAPS);
+    }
+}
+
+void dance_esc_caps_reset(tap_dance_state_t *state, void *user_data) {
+    // 特に解除処理不要
+}
+
+// 🔹 TD_LGUI_D の動作定義
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         register_code(KC_LGUI);
@@ -30,46 +43,68 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
 
 // 登録一覧
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
-    [TD_SAMPLE2] = ACTION_TAP_DANCE_DOUBLE(KC_A, LCTL(KC_A)),  // 例
+    [TD_LGUI_D]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
+    [TD_SAMPLE2] = ACTION_TAP_DANCE_DOUBLE(KC_A, LCTL(KC_A)),
+    [TD_ESC_CAPS]= ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_esc_caps_finished, dance_esc_caps_reset),
 };
 
 // ==========================================================
 // 🔹 コンボ設定
 // ==========================================================
 
-// コンボ識別ID
 enum combo_events {
-    COMBO_DEL,     // Down + Right = Delete
-    COMBO_SAMPLE2, // Q + W = ESC
+    COMBO_DEL,      // Down + Right = Delete
+    COMBO_SAMPLE2,  // Q + W = ESC
+    COMBO_JK_ENT,   // J + K = Enter
 };
 
 // コンボ定義
 const uint16_t PROGMEM del_combo[]     = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM sample2_combo[] = {KC_Q, KC_W, COMBO_END};
+const uint16_t PROGMEM jk_ent_combo[]  = {KC_J, KC_K, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DEL]     = COMBO(del_combo, KC_DEL),
     [COMBO_SAMPLE2] = COMBO(sample2_combo, KC_ESC),
+    [COMBO_JK_ENT]  = COMBO(jk_ent_combo, KC_ENT),
 };
+
+// ==========================================================
+// 🔸 マクロ設定
+// ==========================================================
+enum custom_keycodes {
+    MC_WHOWAITO = SAFE_RANGE,  // "Wwhowaito1"を出力
+};
+
+// process_record_user でマクロ動作を定義
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case MC_WHOWAITO:
+            if (record->event.pressed) {
+                SEND_STRING("Wwhowaito1");
+            }
+            return false;
+    }
+    return true;
+}
 
 // ==========================================================
 // 🧱 キーマップ定義
 // ==========================================================
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
-        KC_ESC,  KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
+        TD(TD_ESC_CAPS), KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
         KC_TAB,  KC_A, KC_S, KC_D, KC_F, KC_G, KC_4, KC_5, KC_6, KC_H, KC_J, KC_K, KC_L, KC_MINS,
         KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_1, KC_2, KC_3, KC_N, KC_M, KC_COMM, KC_UP, MT(MOD_LSFT, KC_SLSH),
-        KC_LCTL, TD(TD_LGUI_D), KC_LOPT, LT(2, KC_CAPS), LT(1, KC_SPC), LT(3, KC_0),
+        KC_LCTL, TD(TD_LGUI_D), KC_LOPT, LT(2, KC_DOT), LT(1, KC_SPC), LT(3, KC_0),
         KC_DOT, KC_BSPC, KC_ENT, KC_LEFT, KC_DOWN, KC_RGHT
     ),
 
     [1] = LAYOUT(
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LSFT(KC_7), LSFT(KC_8), LSFT(KC_9), KC_TRNS, LSFT(KC_7), LSFT(KC_2), KC_TRNS, KC_TRNS,
         KC_TRNS, KC_PSLS, KC_PAST, KC_PMNS, KC_PPLS, KC_TRNS, LSFT(KC_4), LSFT(KC_5), LSFT(KC_6), KC_TRNS, LSFT(KC_8), LSFT(KC_9), KC_TRNS, JP_UNDS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LSFT(KC_1), LSFT(KC_2), LSFT(KC_3), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LSFT(KC_1), LSFT(KC_2), LSFT(KC_3), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, JP_BSLS,
+        KC_TRNS, KC_TRNS, KC_TRNS, MC_WHOWAITO, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     ),
 
     [2] = LAYOUT(
@@ -80,9 +115,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [3] = LAYOUT(
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_UP, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_LEFT, KC_DOWN, KC_RGHT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_DOWN, KC_RGHT
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_UP, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_7, KC_8, KC_9, KC_PPLS,
+        KC_TRNS, KC_TRNS, KC_LEFT, KC_DOWN, KC_RGHT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_4, KC_5, KC_6, KC_PMNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_1, KC_2, KC_3, KC_PAST,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_0, KC_DOT, KC_COMM, KC_PSLS
     )
 };
