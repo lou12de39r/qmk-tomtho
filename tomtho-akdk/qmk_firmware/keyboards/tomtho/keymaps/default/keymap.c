@@ -7,24 +7,29 @@
 // ==========================================================
 // 🔸 タップダンス設定
 // ==========================================================
-
 enum {
     TD_LGUI_D = 0,
     TD_ESC_CAPS,
-    TD_P_LAYER1,
+    TD_Q_LAYER3,
+    TD_DOT_CAPS,
 };
 
 // --------------------
 // TD_ESC_CAPS
+// 🔸 タップ：ESC、ホールド：CAPSLOCK
 // --------------------
 void dance_esc_caps_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->count == 1) {
+    if (state->pressed) {
+        // ホールド時（押しっぱなし）
+        register_code(KC_CAPS);
+    } else if (state->count == 1) {
+        // 1タップ時
         tap_code(KC_ESC);
-    } else if (state->count == 2) {
-        tap_code(KC_CAPS);
     }
 }
-void dance_esc_caps_reset(tap_dance_state_t *state, void *user_data) {}
+void dance_esc_caps_reset(tap_dance_state_t *state, void *user_data) {
+    unregister_code(KC_CAPS);
+}
 
 // --------------------
 // TD_LGUI_D
@@ -42,19 +47,34 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 // --------------------
-// TD_P_LAYER1
-// 🔸 1回：P、2回：Layer1トグル、3回：Layer0リセット
+// TD_Q_LAYER3
+// 🔸 1回：Q、2回：Layer3トグル、3回：Layer0リセット
 // --------------------
-void dance_p_layer1_finished(tap_dance_state_t *state, void *user_data) {
+void dance_q_layer3_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
-        tap_code(KC_P);
+        tap_code(KC_Q);
     } else if (state->count == 2) {
-        layer_invert(1);
+        layer_invert(3);
     } else if (state->count >= 3) {
-        layer_move(0);  // ← レイヤをリセット（Layer0へ移動）
+        layer_move(0);
     }
 }
-void dance_p_layer1_reset(tap_dance_state_t *state, void *user_data) {}
+void dance_q_layer3_reset(tap_dance_state_t *state, void *user_data) {}
+
+// --------------------
+// TD_DOT_CAPS
+// 🔸 タップ：DOT、ホールド：CAPSLOCK
+// --------------------
+void dance_dot_caps_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->pressed) {
+        register_code(KC_CAPS);
+    } else if (state->count == 1) {
+        tap_code(KC_DOT);
+    }
+}
+void dance_dot_caps_reset(tap_dance_state_t *state, void *user_data) {
+    unregister_code(KC_CAPS);
+}
 
 // --------------------
 // 登録一覧
@@ -62,7 +82,8 @@ void dance_p_layer1_reset(tap_dance_state_t *state, void *user_data) {}
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI_D]   = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
     [TD_ESC_CAPS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_esc_caps_finished, dance_esc_caps_reset),
-    [TD_P_LAYER1] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_p_layer1_finished, dance_p_layer1_reset),
+    [TD_Q_LAYER3] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_layer3_finished, dance_q_layer3_reset),
+    [TD_DOT_CAPS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_dot_caps_finished, dance_dot_caps_reset),
 };
 
 // ==========================================================
@@ -107,10 +128,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // ==========================================================
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
-        TD(TD_ESC_CAPS), LT(4,KC_Q), KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, TD(TD_P_LAYER1),
+        TD(TD_ESC_CAPS), TD(TD_Q_LAYER3), KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
         KC_TAB,  KC_A, KC_S, KC_D, KC_F, KC_G, KC_4, KC_5, KC_6, KC_H, KC_J, KC_K, KC_L, KC_MINS,
         KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_1, KC_2, KC_3, KC_N, KC_M, KC_COMM, KC_UP, MT(MOD_LSFT, KC_SLSH),
-        KC_LCTL, TD(TD_LGUI_D), KC_LOPT, KC_DOT, LT(2, KC_SPC), KC_0, KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
+        KC_LCTL, TD(TD_LGUI_D), KC_LOPT, TD(TD_DOT_CAPS), LT(2, KC_SPC), KC_0, KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
     ),
 
     [1] = LAYOUT(
