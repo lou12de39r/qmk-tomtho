@@ -10,9 +10,8 @@
 // タップダンス識別ID
 enum {
     TD_LGUI_D = 0,    // LGUI / LGUI+D
-    TD_SAMPLE2,       // 例: A / Ctrl+A
     TD_ESC_CAPS,      // 1回ESC / 2回CapsLock
-    TD_DOT_CAPS,      // タップ=DOT / ホールド=CAPS
+    TD_DOT_CAPS,      // タップ=DOT / ダブルタップ=CAPS
 };
 
 // --------------------
@@ -25,7 +24,6 @@ void dance_esc_caps_finished(tap_dance_state_t *state, void *user_data) {
         tap_code(KC_CAPS);
     }
 }
-
 void dance_esc_caps_reset(tap_dance_state_t *state, void *user_data) {
     // 特に解除処理不要
 }
@@ -41,24 +39,23 @@ void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
         tap_code(KC_D);
     }
 }
-
 void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LGUI);
 }
 
 // --------------------
 // TD_DOT_CAPS
+// 🔸 変更箇所：タップ=DOT / ダブルタップ=CAPS
 // --------------------
 void dance_dot_caps_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->pressed) { // ホールド
-        register_code(KC_CAPS);
-    } else {              // タップ
+    if (state->count == 1) {
         tap_code(KC_DOT);
+    } else if (state->count == 2) {
+        tap_code(KC_CAPS);
     }
 }
-
 void dance_dot_caps_reset(tap_dance_state_t *state, void *user_data) {
-    unregister_code(KC_CAPS);
+    // 解除処理不要
 }
 
 // --------------------
@@ -66,9 +63,8 @@ void dance_dot_caps_reset(tap_dance_state_t *state, void *user_data) {
 // --------------------
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI_D]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
-    [TD_SAMPLE2]   = ACTION_TAP_DANCE_DOUBLE(KC_A, LCTL(KC_A)),
     [TD_ESC_CAPS]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_esc_caps_finished, dance_esc_caps_reset),
-    [TD_DOT_CAPS]  = ACTION_TAP_DANCE_FN_ADVANCED(dance_dot_caps_finished, dance_dot_caps_finished, dance_dot_caps_reset),
+    [TD_DOT_CAPS]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_dot_caps_finished, dance_dot_caps_reset),
 };
 
 // ==========================================================
@@ -76,18 +72,15 @@ tap_dance_action_t tap_dance_actions[] = {
 // ==========================================================
 enum combo_events {
     COMBO_DEL,      // Down + Right = Delete
-    COMBO_SAMPLE2,  // Q + W = ESC
     COMBO_JK_ENT,   // J + K = Enter
 };
 
-const uint16_t PROGMEM del_combo[]     = {KC_DOWN, KC_RGHT, COMBO_END};
-const uint16_t PROGMEM sample2_combo[] = {KC_Q, KC_W, COMBO_END};
-const uint16_t PROGMEM jk_ent_combo[]  = {KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
+const uint16_t PROGMEM jk_ent_combo[] = {KC_J, KC_K, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-    [COMBO_DEL]     = COMBO(del_combo, KC_DEL),
-    [COMBO_SAMPLE2] = COMBO(sample2_combo, KC_ESC),
-    [COMBO_JK_ENT]  = COMBO(jk_ent_combo, KC_ENT),
+    [COMBO_DEL]    = COMBO(del_combo, KC_DEL),
+    [COMBO_JK_ENT] = COMBO(jk_ent_combo, KC_ENT),
 };
 
 // ==========================================================
