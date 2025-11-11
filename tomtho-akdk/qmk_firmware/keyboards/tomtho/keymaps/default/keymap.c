@@ -2,6 +2,8 @@
 #include QMK_KEYBOARD_H
 #include "process_tap_dance.h"
 #include "keymap_japanese.h"
+#include "mousekey.h"
+
 
 // ==========================================================
 // 🔸 タップダンス設定
