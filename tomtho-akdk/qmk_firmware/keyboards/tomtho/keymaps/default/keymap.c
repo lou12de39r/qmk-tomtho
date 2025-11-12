@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include QMK_KEYBOARD_H
 #include "process_tap_dance.h"
-#include "keymap_japanese.h"
+#include "quantum/keymap_extras/keymap_japanese.h"
 #include "mousekey.h"
 
 // ==========================================================
