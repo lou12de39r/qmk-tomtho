@@ -20,10 +20,8 @@ enum {
 // --------------------
 void dance_esc_caps_finished(tap_dance_state_t *state, void *user_data) {
     if (state->pressed) {
-        // ホールド時（押しっぱなし）
         register_code(KC_CAPS);
     } else if (state->count == 1) {
-        // 1タップ時
         tap_code(KC_ESC);
     }
 }
@@ -87,17 +85,19 @@ tap_dance_action_t tap_dance_actions[] = {
 };
 
 // ==========================================================
-// 🔹 コンボ設定
+// 🔹 コンボ設定（実際の物理座標指定）
 // ==========================================================
 enum combo_events {
     COMBO_DEL,
     COMBO_JK_ENT,
     COMBO_DOT,
+    COMBO_COUNT
 };
 
-const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
-const uint16_t PROGMEM jk_ent_combo[] = {KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
+// 🧩 各キーの物理行列位置指定
+const uint16_t PROGMEM del_combo[]    = { COMBO_REF_MATRIX(3,10), COMBO_REF_MATRIX(3,11), COMBO_END }; // ↓ + →
+const uint16_t PROGMEM jk_ent_combo[] = { COMBO_REF_MATRIX(1,10), COMBO_REF_MATRIX(1,11), COMBO_END }; // J + K
+const uint16_t PROGMEM dot_combo[]    = { COMBO_REF_MATRIX(2,11), COMBO_REF_MATRIX(2,12), COMBO_END }; // , + ↑
 
 combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DEL]    = COMBO(del_combo, KC_DEL),
