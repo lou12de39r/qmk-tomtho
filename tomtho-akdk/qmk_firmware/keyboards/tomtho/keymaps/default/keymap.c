@@ -93,19 +93,22 @@ enum combo_events {
     COMBO_DEL,
     COMBO_JK_ENT,
     COMBO_DOT,
-    COMBO_OP_INT4,   // ★ 追加
+    COMBO_OP_INT4,
+    COMBO_UNDS,
 };
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM jk_ent_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
-const uint16_t PROGMEM op_int4_combo[] = {KC_O, KC_P, COMBO_END};  // ★ 追加
+const uint16_t PROGMEM op_int4_combo[] = {KC_O, LT(4,KC_P), COMBO_END}; 
+const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DEL]    = COMBO(del_combo, KC_DEL),
     [COMBO_JK_ENT] = COMBO(jk_ent_combo, KC_ENT),
     [COMBO_DOT]    = COMBO(dot_combo, KC_DOT),
-    [COMBO_OP_INT4] = COMBO(op_int4_combo, KC_INT4),  // ★ 追加
+    [COMBO_OP_INT4] = COMBO(op_int4_combo, KC_INT4),
+    [COMBO_UNDS]   = COMBO(unds_combo, JP_UNDS),
 };
 
 // ==========================================================
