@@ -20,10 +20,8 @@ TD_DOT_CAPS,
 // --------------------
 void dance_esc_caps_finished(tap_dance_state_t *state, void *user_data) {
     if (state->pressed) {
-        // ホールド時（押しっぱなし）
         register_code(KC_CAPS);
     } else if (state->count == 1) {
-        // 1タップ時
         tap_code(KC_ESC);
     }
 }
@@ -100,7 +98,10 @@ enum combo_events {
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM jk_ent_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
-const uint16_t PROGMEM op_screenshot_combo[] = {KC_O, KC_P, COMBO_END}; 
+
+// ★★ ここを O + P → K + L に変更 ★★
+const uint16_t PROGMEM op_screenshot_combo[] = {KC_K, KC_L, COMBO_END};
+
 const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
@@ -133,6 +134,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // 🧱 キーマップ定義
 // ==========================================================
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+// layer 0
 [0] = LAYOUT(
 KC_ESC, TD(TD_Q_LAYER3), KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
 KC_TAB,  KC_A, KC_S, KC_D, KC_F, KC_G, KC_4, KC_5, KC_6, KC_H, KC_J, KC_K, KC_L, KC_MINS,
@@ -140,6 +142,7 @@ KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_1, KC_2, KC_3, KC_N, KC_M, KC_COMM, KC
 KC_LCTL, TD(TD_LGUI_D), MT(MOD_LALT, KC_INT4), LT(4,KC_CAPS), LT(2, KC_SPC), LT(3,KC_0), KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
 ),
 
+// layer 1
 [1] = LAYOUT(  
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LSFT(KC_7), LSFT(KC_8), LSFT(KC_9), KC_TRNS, LSFT(KC_7), LSFT(KC_2), JP_AT, KC_TRNS,  
     KC_TRNS, KC_PSLS, KC_PAST, KC_PMNS, KC_PPLS, KC_TRNS, LSFT(KC_4), LSFT(KC_5), LSFT(KC_6), KC_TRNS, LSFT(KC_8), LSFT(KC_9), KC_TRNS, JP_UNDS,  
@@ -147,6 +150,7 @@ KC_LCTL, TD(TD_LGUI_D), MT(MOD_LALT, KC_INT4), LT(4,KC_CAPS), LT(2, KC_SPC), LT(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS  
 ),  
 
+// layer 2
 [2] = LAYOUT(  
     KC_TRNS, KC_TRNS, LSFT(KC_PGUP), KC_PGUP, LSFT(KC_PGDN), KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F10, KC_7, KC_8, KC_9, KC_PPLS,  
     KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_F4, KC_F5, KC_F6, KC_F11, KC_4, KC_5, KC_6, KC_PMNS,  
@@ -154,6 +158,7 @@ KC_LCTL, TD(TD_LGUI_D), MT(MOD_LALT, KC_INT4), LT(4,KC_CAPS), LT(2, KC_SPC), LT(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_0, KC_DOT, KC_COMM, KC_PSLS  
 ),  
 
+// layer 3
 [3] = LAYOUT(  
     KC_TRNS, KC_TRNS, MS_BTN4, KC_TRNS, MS_BTN5, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MS_WHLU, MS_UP, MS_WHLL, MS_WHLR,  
     KC_TRNS, MS_BTN1, MS_BTN1, MS_BTN3, MS_BTN2, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MS_LEFT, MS_DOWN, MS_RGHT, KC_TRNS,  
@@ -161,10 +166,11 @@ KC_LCTL, TD(TD_LGUI_D), MT(MOD_LALT, KC_INT4), LT(4,KC_CAPS), LT(2, KC_SPC), LT(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS  
 ),  
 
+// layer 4
 [4] = LAYOUT(  
     QK_BOOT, QK_REBOOT, LSFT(KC_PGUP), KC_PGUP, LSFT(KC_PGDN), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  
     KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MC_WHOWAITO, KC_TRNS, KC_TRNS, KC_TRNS,  
-    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  
-    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS  
+    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PGUP, KC_TRNS,  
+    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END 
 )
 };
