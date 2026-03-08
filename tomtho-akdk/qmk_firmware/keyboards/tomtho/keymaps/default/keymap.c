@@ -8,25 +8,8 @@
 // 🔸 タップダンス設定
 // ==========================================================
 enum {
-    TD_LGUI_D = 0,
-    TD_ESC_CAPS,
-    TD_DOT_CAPS,
+    TD_LGUI_D = 0
 };
-
-// --------------------
-// TD_ESC_CAPS
-// 🔸 タップ：ESC、ホールド：CAPSLOCK
-// --------------------
-void dance_esc_caps_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->pressed) {
-        register_code(KC_CAPS);
-    } else if (state->count == 1) {
-        tap_code(KC_ESC);
-    }
-}
-void dance_esc_caps_reset(tap_dance_state_t *state, void *user_data) {
-    unregister_code(KC_CAPS);
-}
 
 // --------------------
 // TD_LGUI_D
@@ -44,27 +27,10 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 // --------------------
-// TD_DOT_CAPS
-// 🔸 タップ：DOT、ホールド：CAPSLOCK
-// --------------------
-void dance_dot_caps_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->pressed) {
-        register_code(KC_CAPS);
-    } else if (state->count == 1) {
-        tap_code(KC_DOT);
-    }
-}
-void dance_dot_caps_reset(tap_dance_state_t *state, void *user_data) {
-    unregister_code(KC_CAPS);
-}
-
-// --------------------
 // 登録一覧
 // --------------------
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_LGUI_D]   = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
-    [TD_ESC_CAPS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_esc_caps_finished, dance_esc_caps_reset),
-    [TD_DOT_CAPS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_dot_caps_finished, dance_dot_caps_reset),
+    [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
 };
 
 // ==========================================================
@@ -76,6 +42,11 @@ enum combo_events {
     COMBO_DOT,
     COMBO_OP_SCREENSHOT,
     COMBO_UNDS,
+    COMBO_COLN,
+    COMBO_SCLN,
+    COMBO_PAREN,
+    COMBO_BRACKET,
+    COMBO_BRACE
 };
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
@@ -84,12 +55,26 @@ const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
 const uint16_t PROGMEM op_screenshot_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 
+const uint16_t PROGMEM coln_combo[] = {KC_9, KC_Y, COMBO_END};
+const uint16_t PROGMEM scln_combo[] = {KC_8, KC_H, COMBO_END};
+
+const uint16_t PROGMEM paren_combo[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM bracket_combo[] = {KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM brace_combo[] = {KC_M, KC_COMM, COMBO_END};
+
 combo_t key_combos[COMBO_COUNT] = {
-    [COMBO_DEL]            = COMBO(del_combo, KC_DEL),
-    [COMBO_JK_ENT]         = COMBO(jk_ent_combo, KC_ENT),
-    [COMBO_DOT]            = COMBO(dot_combo, KC_DOT),
-    [COMBO_OP_SCREENSHOT]  = COMBO(op_screenshot_combo, LGUI(LSFT(KC_S))),
-    [COMBO_UNDS]           = COMBO(unds_combo, JP_UNDS),
+    [COMBO_DEL]           = COMBO(del_combo, KC_DEL),
+    [COMBO_JK_ENT]        = COMBO(jk_ent_combo, KC_ENT),
+    [COMBO_DOT]           = COMBO(dot_combo, KC_DOT),
+    [COMBO_OP_SCREENSHOT] = COMBO(op_screenshot_combo, LGUI(LSFT(KC_S))),
+    [COMBO_UNDS]          = COMBO(unds_combo, JP_UNDS),
+
+    [COMBO_COLN]          = COMBO(coln_combo, JP_COLN),
+    [COMBO_SCLN]          = COMBO(scln_combo, KC_SCLN),
+
+    [COMBO_PAREN]         = COMBO(paren_combo, KC_NO),
+    [COMBO_BRACKET]       = COMBO(bracket_combo, KC_NO),
+    [COMBO_BRACE]         = COMBO(brace_combo, KC_NO),
 };
 
 // ==========================================================
@@ -98,6 +83,29 @@ combo_t key_combos[COMBO_COUNT] = {
 enum custom_keycodes {
     MC_WHOWAITO = SAFE_RANGE,
 };
+
+bool process_combo_event(uint16_t combo_index, bool pressed) {
+
+    if (!pressed) return;
+
+    switch(combo_index) {
+
+        case COMBO_PAREN:
+            SEND_STRING("()");
+            tap_code(KC_LEFT);
+            break;
+
+        case COMBO_BRACKET:
+            SEND_STRING("[]");
+            tap_code(KC_LEFT);
+            break;
+
+        case COMBO_BRACE:
+            SEND_STRING("{}");
+            tap_code(KC_LEFT);
+            break;
+    }
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
