@@ -11,7 +11,6 @@ enum {
     TD_LGUI_D = 0,
 };
 
-// --------------------
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         register_code(KC_LGUI);
@@ -39,8 +38,8 @@ enum combo_events {
     COMBO_UNDS,
     COMBO_COLN,
     COMBO_SCLN,
-    COMBO_PAREN,
     COMBO_BRACKET,
+    COMBO_PAREN,
     COMBO_BRACE
 };
 
@@ -52,8 +51,10 @@ const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 const uint16_t PROGMEM coln_combo[] = {KC_9, KC_Y, COMBO_END};
 const uint16_t PROGMEM scln_combo[] = {KC_8, KC_H, COMBO_END};
 
-const uint16_t PROGMEM paren_combo[]   = {KC_U, KC_I, COMBO_END};
-const uint16_t PROGMEM bracket_combo[] = {KC_J, KC_K, COMBO_END};
+// ★ 入れ替え
+const uint16_t PROGMEM bracket_combo[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM paren_combo[]   = {KC_J, KC_K, COMBO_END};
+
 const uint16_t PROGMEM brace_combo[]   = {KC_M, KC_COMM, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
@@ -65,8 +66,8 @@ combo_t key_combos[COMBO_COUNT] = {
     [COMBO_COLN]           = COMBO(coln_combo, JP_COLN),
     [COMBO_SCLN]           = COMBO(scln_combo, KC_SCLN),
 
-    [COMBO_PAREN]          = COMBO_ACTION(paren_combo),
     [COMBO_BRACKET]        = COMBO_ACTION(bracket_combo),
+    [COMBO_PAREN]          = COMBO_ACTION(paren_combo),
     [COMBO_BRACE]          = COMBO_ACTION(brace_combo),
 };
 
@@ -79,17 +80,17 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 
     switch(combo_index) {
 
-        // ()
-        case COMBO_PAREN:
-            tap_code16(JP_LPRN);
-            tap_code16(JP_RPRN);
-            tap_code(KC_LEFT);
-            break;
-
-        // []
+        // []  ← U+I
         case COMBO_BRACKET:
             tap_code16(JP_LBRC);
             tap_code16(JP_RBRC);
+            tap_code(KC_LEFT);
+            break;
+
+        // ()  ← J+K
+        case COMBO_PAREN:
+            tap_code16(JP_LPRN);
+            tap_code16(JP_RPRN);
             tap_code(KC_LEFT);
             break;
 
