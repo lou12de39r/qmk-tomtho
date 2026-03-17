@@ -7,7 +7,7 @@ on:
 env:
   KEYBOARD_NAME: "tomtho"
   USER_REPO_PATH: "tomtho-akdk/qmk_firmware/keyboards/tomtho"
-  FORCEJAVASCRIPTACTIONSTONODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ======================================
