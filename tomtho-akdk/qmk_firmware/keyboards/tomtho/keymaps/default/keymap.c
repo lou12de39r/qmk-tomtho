@@ -9,8 +9,10 @@
 // ==========================================================
 enum {
     TD_LGUI_D = 0,
+    TD_ESC_AF4
 };
 
+// --- LGUI + D ---
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         register_code(KC_LGUI);
@@ -24,8 +26,22 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LGUI);
 }
 
+// --- ESC / Alt+F4 ---
+void dance_esc_af4_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        tap_code(KC_ESC);
+    } else if (state->count == 2) {
+        tap_code16(LALT(KC_F4));
+    }
+}
+
+void dance_esc_af4_reset(tap_dance_state_t *state, void *user_data) {
+    // 何も不要
+}
+
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
+    [TD_LGUI_D]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
+    [TD_ESC_AF4] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_esc_af4_finished, dance_esc_af4_reset),
 };
 
 // ==========================================================
@@ -72,7 +88,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 
     switch(combo_index) {
 
-        // () ← J+K
         case COMBO_PAREN:
             tap_code16(JP_LPRN);
             tap_code16(JP_RPRN);
@@ -110,7 +125,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // layer 0
 [0] = LAYOUT(
-    KC_ESC, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
+    TD(TD_ESC_AF4), KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
     KC_TAB, KC_A, KC_S, KC_D, KC_F, KC_G, KC_4, KC_5, KC_6, KC_H, KC_J, KC_K, KC_L, KC_MINS,
     KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_1, KC_2, KC_3, KC_N, KC_M, KC_COMM, KC_UP, MT(MOD_LSFT, KC_SLSH),
     KC_LCTL, TD(TD_LGUI_D), MT(MOD_LALT, KC_INT4), LT(4,KC_CAPS), LT(2, KC_SPC), LT(3,KC_0), KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
