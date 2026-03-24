@@ -30,8 +30,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 };
- 
+
 enum custom_keycodes {
     MC_PASS = USER00,
     MC_MAIL
 };
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+
+        case MC_PASS:
+            if (record->event.pressed) {
+                SEND_STRING("Wwhowaito1");
+            }
+            return false;
+
+        case MC_MAIL:
+            if (record->event.pressed) {
+                SEND_STRING("lou12de39r@gmail.com");
+            }
+            return false;
+
+    }
+    return true;
+}
