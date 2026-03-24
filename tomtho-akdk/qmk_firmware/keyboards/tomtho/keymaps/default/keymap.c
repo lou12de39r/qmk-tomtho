@@ -15,11 +15,7 @@ enum {
 
 static bool alt_tab_active = false;
 
-bool is_shift_held(void) {
-    return (get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT;
-}
-
-// LGUI + D
+// LGUI+D
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         register_code(KC_LGUI);
@@ -46,10 +42,8 @@ void dance_q_alt_tab_finished(tap_dance_state_t *state, void *user_data) {
         register_code(KC_LALT);
     }
 
-    if (is_shift_held()) {
-        register_code(KC_LSFT);
-        tap_code(KC_TAB);
-        unregister_code(KC_LSFT);
+    if (get_mods() & MOD_MASK_SHIFT) {
+        tap_code16(S(KC_TAB));
     } else {
         tap_code(KC_TAB);
     }
