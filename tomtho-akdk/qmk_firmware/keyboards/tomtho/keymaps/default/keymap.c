@@ -8,7 +8,8 @@
 // 🔸 タップダンス設定
 // ==========================================================
 enum {
-    TD_LGUI_D = 0
+    TD_LGUI_D = 0,
+    TD_Q_ALT_TAB
 };
 
 // --- LGUI + D ---
@@ -25,8 +26,30 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LGUI);
 }
 
+// --- Q : Alt+Tab ---
+void dance_q_alt_tab_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        tap_code(KC_Q);
+    } else if (state->count == 2) {
+        if (get_mods() & MOD_MASK_SHIFT) {
+            register_code(KC_LALT);
+            register_code(KC_LSFT);
+            tap_code(KC_TAB);
+            unregister_code(KC_LSFT);
+            unregister_code(KC_LALT);
+        } else {
+            register_code(KC_LALT);
+            tap_code(KC_TAB);
+            unregister_code(KC_LALT);
+        }
+    }
+}
+
+void dance_q_alt_tab_reset(tap_dance_state_t *state, void *user_data) {}
+
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_LGUI_D]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
+    [TD_LGUI_D]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
+    [TD_Q_ALT_TAB] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_alt_tab_finished, dance_q_alt_tab_reset),
 };
 
 // ==========================================================
@@ -57,22 +80,18 @@ combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DOT]            = COMBO(dot_combo, KC_DOT),
     [COMBO_OP_SCREENSHOT]  = COMBO(op_screenshot_combo, LGUI(LSFT(KC_S))),
     [COMBO_UNDS]           = COMBO(unds_combo, JP_UNDS),
-
     [COMBO_COLN]           = COMBO(coln_combo, JP_COLN),
     [COMBO_SCLN]           = COMBO(scln_combo, KC_SCLN),
-
     [COMBO_PAREN]          = COMBO_ACTION(paren_combo),
 };
 
 // ==========================================================
-// 🔹 COMBO ACTION (JIS対応)
+// 🔹 COMBO ACTION
 // ==========================================================
 void process_combo_event(uint16_t combo_index, bool pressed) {
-
     if (!pressed) return;
 
     switch(combo_index) {
-
         case COMBO_PAREN:
             tap_code16(JP_LPRN);
             tap_code16(JP_RPRN);
@@ -86,6 +105,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 // ==========================================================
 enum custom_keycodes {
     MC_WHOWAITO = SAFE_RANGE,
+    MC_MAIL
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -98,6 +118,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
+        case MC_MAIL:
+            if (record->event.pressed) {
+                SEND_STRING("lou12de39r@gmail.com");
+            }
+            return false;
     }
 
     return true;
@@ -110,7 +135,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // layer 0
 [0] = LAYOUT(
-    KC_ESC, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
+    KC_ESC, TD(TD_Q_ALT_TAB), KC_W, KC_E, KC_R, KC_T, KC_7, KC_8, KC_9, KC_Y, KC_U, KC_I, KC_O, KC_P,
     KC_TAB, KC_A, KC_S, KC_D, KC_F, KC_G, KC_4, KC_5, KC_6, KC_H, KC_J, KC_K, KC_L, KC_MINS,
     KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_1, KC_2, KC_3, KC_N, KC_M, KC_COMM, KC_UP, MT(MOD_LSFT, KC_SLSH),
     KC_LCTL, TD(TD_LGUI_D), MT(MOD_LALT, KC_INT4), LT(4,KC_CAPS), LT(2, KC_SPC), LT(3,KC_0), KC_DOT, KC_BSPC, LT(1, KC_ENT), KC_LEFT, KC_DOWN, KC_RGHT
@@ -127,7 +152,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // layer 2
 [2] = LAYOUT(
     KC_TRNS, LCTL(KC_HOME), LCTL(KC_PGUP), KC_PGUP, LCTL(KC_PGDN), LCTL(KC_END), KC_F7, KC_F8, KC_F9, KC_F10, KC_7, KC_8, KC_9, KC_PPLS,
-    KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_F4, KC_F5, KC_F6, KC_F11, KC_4, KC_5, KC_6, KC_PMNS,
+    KC_TRNS, LCTL(KC_A), KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_F4, KC_F5, KC_F6, KC_F11, KC_4, KC_5, KC_6, KC_PMNS,
     KC_TRNS, LCTL(KC_Z), LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), KC_TRNS, KC_F1, KC_F2, KC_F3, KC_F12, KC_1, KC_2, KC_3, KC_PAST,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_0, KC_DOT, KC_COMM, KC_PSLS
 ),
@@ -143,7 +168,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // layer 4
 [4] = LAYOUT(
     QK_BOOT, QK_REBOOT, LSFT(KC_PGUP), KC_PGUP, LSFT(KC_PGDN), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-    KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MC_WHOWAITO, KC_TRNS, KC_TRNS, KC_TRNS,
+    KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MC_WHOWAITO, MC_MAIL, KC_TRNS, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PGUP, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END
 )
