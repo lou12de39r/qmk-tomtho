@@ -12,6 +12,8 @@ enum {
     TD_Q_ALT_TAB
 };
 
+static bool alt_tab_active = false;
+
 // --- LGUI + D ---
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
@@ -31,16 +33,16 @@ void dance_q_alt_tab_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         tap_code(KC_Q);
     } else if (state->count == 2) {
+
+        alt_tab_active = true;
+        register_code(KC_LALT);
+
         if (get_mods() & MOD_MASK_SHIFT) {
-            register_code(KC_LALT);
             register_code(KC_LSFT);
             tap_code(KC_TAB);
             unregister_code(KC_LSFT);
-            unregister_code(KC_LALT);
         } else {
-            register_code(KC_LALT);
             tap_code(KC_TAB);
-            unregister_code(KC_LALT);
         }
     }
 }
@@ -58,7 +60,7 @@ tap_dance_action_t tap_dance_actions[] = {
 enum combo_events {
     COMBO_DEL,
     COMBO_DOT,
-    COMBO_OP_SCREENSHOT,
+    COMBO_SCREENSHOT,
     COMBO_UNDS,
     COMBO_COLN,
     COMBO_SCLN,
@@ -67,7 +69,7 @@ enum combo_events {
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
-const uint16_t PROGMEM op_screenshot_combo[] = {KC_K, KC_L, COMBO_END};
+const uint16_t PROGMEM screenshot_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 
 const uint16_t PROGMEM coln_combo[] = {KC_9, KC_Y, COMBO_END};
@@ -76,13 +78,13 @@ const uint16_t PROGMEM scln_combo[] = {KC_6, KC_H, COMBO_END};
 const uint16_t PROGMEM paren_combo[] = {KC_J, KC_K, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-    [COMBO_DEL]            = COMBO(del_combo, KC_DEL),
-    [COMBO_DOT]            = COMBO(dot_combo, KC_DOT),
-    [COMBO_OP_SCREENSHOT]  = COMBO(op_screenshot_combo, LGUI(LSFT(KC_S))),
-    [COMBO_UNDS]           = COMBO(unds_combo, JP_UNDS),
-    [COMBO_COLN]           = COMBO(coln_combo, JP_COLN),
-    [COMBO_SCLN]           = COMBO(scln_combo, KC_SCLN),
-    [COMBO_PAREN]          = COMBO_ACTION(paren_combo),
+    [COMBO_DEL]         = COMBO(del_combo, KC_DEL),
+    [COMBO_DOT]         = COMBO(dot_combo, KC_DOT),
+    [COMBO_SCREENSHOT]  = COMBO(screenshot_combo, LGUI(LSFT(KC_S))),
+    [COMBO_UNDS]        = COMBO(unds_combo, JP_UNDS),
+    [COMBO_COLN]        = COMBO(coln_combo, JP_COLN),
+    [COMBO_SCLN]        = COMBO(scln_combo, KC_SCLN),
+    [COMBO_PAREN]       = COMBO_ACTION(paren_combo),
 };
 
 // ==========================================================
@@ -95,7 +97,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         case COMBO_PAREN:
             tap_code16(JP_LPRN);
             tap_code16(JP_RPRN);
-            tap_code(KC_LEFT);
             break;
     }
 }
@@ -104,15 +105,20 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 // 🔸 マクロ設定
 // ==========================================================
 enum custom_keycodes {
-    MC_WHOWAITO = SAFE_RANGE,
+    MC_PASS = SAFE_RANGE,
     MC_MAIL
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
+    if (alt_tab_active) {
+        alt_tab_active = false;
+        unregister_code(KC_LALT);
+    }
+
     switch (keycode) {
 
-        case MC_WHOWAITO:
+        case MC_PASS:
             if (record->event.pressed) {
                 SEND_STRING("Wwhowaito1");
             }
@@ -168,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // layer 4
 [4] = LAYOUT(
     QK_BOOT, QK_REBOOT, LSFT(KC_PGUP), KC_PGUP, LSFT(KC_PGDN), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-    KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MC_WHOWAITO, MC_MAIL, KC_TRNS, KC_TRNS,
+    KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MC_PASS, MC_MAIL, KC_TRNS, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PGUP, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END
 )
