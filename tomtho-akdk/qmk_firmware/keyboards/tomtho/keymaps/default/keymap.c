@@ -10,10 +10,8 @@
 
 enum {
     TD_LGUI_D = 0,
-    TD_Q_ALT_TAB
+    TD_Q_WIN_TAB
 };
-
-static bool alt_tab_active = false;
 
 // LGUI+D
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
@@ -29,31 +27,21 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LGUI);
 }
 
-// AltTab
-void dance_q_alt_tab_finished(tap_dance_state_t *state, void *user_data) {
-
-    if (state->count == 1 && !alt_tab_active) {
+// Q double = Win+Tab (1回のみ)
+void dance_q_win_tab_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
         tap_code(KC_Q);
-        return;
     }
-
-    if (!alt_tab_active) {
-        alt_tab_active = true;
-        register_code(KC_LALT);
-    }
-
-    if (get_mods() & MOD_MASK_SHIFT) {
-        tap_code16(S(KC_TAB));
-    } else {
-        tap_code(KC_TAB);
+    else if (state->count == 2) {
+        tap_code16(G(KC_TAB));
     }
 }
 
-void dance_q_alt_tab_reset(tap_dance_state_t *state, void *user_data) {}
+void dance_q_win_tab_reset(tap_dance_state_t *state, void *user_data) {}
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
-    [TD_Q_ALT_TAB] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_alt_tab_finished, dance_q_alt_tab_reset),
+    [TD_Q_WIN_TAB] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_win_tab_finished, dance_q_win_tab_reset),
 };
 
 // ==========================================================
@@ -110,13 +98,6 @@ enum custom_keycodes {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-    if (alt_tab_active && record->event.pressed) {
-        if (keycode != TD(TD_Q_ALT_TAB)) {
-            alt_tab_active = false;
-            unregister_code(KC_LALT);
-        }
-    }
-
     switch (keycode) {
 
         case MC_PASS:
@@ -127,7 +108,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case MC_MAIL:
             if (record->event.pressed) {
-                SEND_STRING("lou12de39r@gmail.com");
+                SEND_STRING("lou12de39r");
+                tap_code16(JP_AT);
+                SEND_STRING("gmail");
+                tap_code(KC_DOT);
+                SEND_STRING("com");
             }
             return false;
     }
@@ -142,7 +127,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT(
-KC_ESC,TD(TD_Q_ALT_TAB),KC_W,KC_E,KC_R,KC_T,KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
+KC_ESC,TD(TD_Q_WIN_TAB),KC_W,KC_E,KC_R,KC_T,KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
 KC_TAB,KC_A,KC_S,KC_D,KC_F,KC_G,KC_4,KC_5,KC_6,KC_H,KC_J,KC_K,KC_L,KC_MINS,
 KC_LSFT,KC_Z,KC_X,KC_C,KC_V,KC_B,KC_1,KC_2,KC_3,KC_N,KC_M,KC_COMM,KC_UP,MT(MOD_LSFT,KC_SLSH),
 KC_LCTL,TD(TD_LGUI_D),MT(MOD_LALT,KC_INT4),LT(4,KC_CAPS),LT(2,KC_SPC),LT(3,KC_0),KC_DOT,KC_BSPC,LT(1,KC_ENT),KC_LEFT,KC_DOWN,KC_RGHT
