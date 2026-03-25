@@ -30,18 +30,14 @@ void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
 // Q tap/hold/double
 void dance_q_finished(tap_dance_state_t *state, void *user_data) {
 
-    // HOLD → Alt+F4
     if (state->pressed) {
         tap_code16(A(KC_F4));
         return;
     }
 
-    // SINGLE TAP → q
     if (state->count == 1) {
         tap_code(KC_Q);
     }
-
-    // DOUBLE TAP → Win+Tab
     else if (state->count == 2) {
         tap_code16(G(KC_TAB));
     }
@@ -70,7 +66,10 @@ enum combo_events {
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
-const uint16_t PROGMEM screenshot_combo[] = {KC_K, KC_L, COMBO_END};
+
+/* 修正ここ：J + K + L */
+const uint16_t PROGMEM screenshot_combo[] = {KC_J, KC_K, KC_L, COMBO_END};
+
 const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 const uint16_t PROGMEM coln_combo[] = {KC_9, KC_Y, COMBO_END};
 const uint16_t PROGMEM scln_combo[] = {KC_6, KC_H, COMBO_END};
