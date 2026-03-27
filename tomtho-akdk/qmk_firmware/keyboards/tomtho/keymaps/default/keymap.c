@@ -10,42 +10,49 @@
 
 enum {
     TD_LGUI_D = 0,
-    TD_Q_SMART
+    TD_Q_SMART,
+    TD_W_CTLW,
+    TD_T_CTLT
 };
 
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->count == 1) {
-        register_code(KC_LGUI);
-    } else if (state->count == 2) {
+    if (state->count == 1) register_code(KC_LGUI);
+    else if (state->count == 2) {
         register_code(KC_LGUI);
         tap_code(KC_D);
     }
 }
-
 void dance_lgui_d_reset(tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LGUI);
 }
 
 void dance_q_finished(tap_dance_state_t *state, void *user_data) {
-
     if (state->pressed) {
         tap_code16(A(KC_F4));
         return;
     }
-
-    if (state->count == 1) {
-        tap_code(KC_Q);
-    }
-    else if (state->count == 2) {
-        tap_code16(G(KC_TAB));
-    }
+    if (state->count == 1) tap_code(KC_Q);
+    else if (state->count == 2) tap_code16(G(KC_TAB));
 }
-
 void dance_q_reset(tap_dance_state_t *state, void *user_data) {}
+
+void dance_w_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->pressed) tap_code16(LCTL(KC_W));
+    else tap_code(KC_W);
+}
+void dance_w_reset(tap_dance_state_t *state, void *user_data) {}
+
+void dance_t_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->pressed) tap_code16(LCTL(KC_T));
+    else tap_code(KC_T);
+}
+void dance_t_reset(tap_dance_state_t *state, void *user_data) {}
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
     [TD_Q_SMART] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_finished, dance_q_reset),
+    [TD_W_CTLW]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_w_finished, dance_w_reset),
+    [TD_T_CTLT]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_t_finished, dance_t_reset),
 };
 
 // ==========================================================
@@ -64,10 +71,8 @@ enum combo_events {
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
-
 const uint16_t PROGMEM screenshot_combo[] = {LT(5,KC_J), KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM paren_combo[] = {LT(5,KC_J), KC_K, COMBO_END};
-
 const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 const uint16_t PROGMEM coln_combo[] = {KC_9, KC_Y, COMBO_END};
 const uint16_t PROGMEM scln_combo[] = {KC_6, KC_H, COMBO_END};
@@ -84,7 +89,6 @@ combo_t key_combos[COMBO_COUNT] = {
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
     if (!pressed) return;
-
     switch(combo_index) {
         case COMBO_PAREN:
             tap_code16(JP_LPRN);
@@ -94,7 +98,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 }
 
 // ==========================================================
-// Layer5 GUI repeat system
+// layer5 GUI first only
 // ==========================================================
 
 static bool layer5_first = true;
@@ -107,13 +111,14 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 // ==========================================================
-// Macro + custom keys
+// custom keycodes
 // ==========================================================
 
 enum custom_keycodes {
     MC_PASS = SAFE_RANGE,
     MC_MAIL,
     MC_XL_NOBORDER,
+    MC_USER,
 
     GUI_1,
     GUI_2,
@@ -133,58 +138,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 
-        // ---------- GUI first only ----------
-        case GUI_1:
-            if (layer5_first){ tap_code16(LGUI(KC_1)); layer5_first=false;}
-            else tap_code(KC_1);
-            return false;
-
-        case GUI_2:
-            if (layer5_first){ tap_code16(LGUI(KC_2)); layer5_first=false;}
-            else tap_code(KC_2);
-            return false;
-
-        case GUI_3:
-            if (layer5_first){ tap_code16(LGUI(KC_3)); layer5_first=false;}
-            else tap_code(KC_3);
-            return false;
-
-        case GUI_4:
-            if (layer5_first){ tap_code16(LGUI(KC_4)); layer5_first=false;}
-            else tap_code(KC_4);
-            return false;
-
-        case GUI_5:
-            if (layer5_first){ tap_code16(LGUI(KC_5)); layer5_first=false;}
-            else tap_code(KC_5);
-            return false;
-
-        case GUI_6:
-            if (layer5_first){ tap_code16(LGUI(KC_6)); layer5_first=false;}
-            else tap_code(KC_6);
-            return false;
-
-        case GUI_7:
-            if (layer5_first){ tap_code16(LGUI(KC_7)); layer5_first=false;}
-            else tap_code(KC_7);
-            return false;
-
-        case GUI_8:
-            if (layer5_first){ tap_code16(LGUI(KC_8)); layer5_first=false;}
-            else tap_code(KC_8);
-            return false;
-
-        case GUI_9:
-            if (layer5_first){ tap_code16(LGUI(KC_9)); layer5_first=false;}
-            else tap_code(KC_9);
-            return false;
-
-        case GUI_0:
-            if (layer5_first){ tap_code16(LGUI(KC_0)); layer5_first=false;}
-            else tap_code(KC_0);
-            return false;
-
-        // ---------- macros ----------
+        case GUI_1: if(layer5_first){tap_code16(LGUI(KC_1));layer5_first=false;} else tap_code(KC_1); return false;
+        case GUI_2: if(layer5_first){tap_code16(LGUI(KC_2));layer5_first=false;} else tap_code(KC_2); return false;
+        case GUI_3: if(layer5_first){tap_code16(LGUI(KC_3));layer5_first=false;} else tap_code(KC_3); return false;
+        case GUI_4: if(layer5_first){tap_code16(LGUI(KC_4));layer5_first=false;} else tap_code(KC_4); return false;
+        case GUI_5: if(layer5_first){tap_code16(LGUI(KC_5));layer5_first=false;} else tap_code(KC_5); return false;
+        case GUI_6: if(layer5_first){tap_code16(LGUI(KC_6));layer5_first=false;} else tap_code(KC_6); return false;
+        case GUI_7: if(layer5_first){tap_code16(LGUI(KC_7));layer5_first=false;} else tap_code(KC_7); return false;
+        case GUI_8: if(layer5_first){tap_code16(LGUI(KC_8));layer5_first=false;} else tap_code(KC_8); return false;
+        case GUI_9: if(layer5_first){tap_code16(LGUI(KC_9));layer5_first=false;} else tap_code(KC_9); return false;
+        case GUI_0: if(layer5_first){tap_code16(LGUI(KC_0));layer5_first=false;} else tap_code(KC_0); return false;
 
         case MC_PASS:
             SEND_STRING("Wwhowaito1");
@@ -196,6 +159,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING("gmail");
             tap_code(KC_DOT);
             SEND_STRING("com");
+            return false;
+
+        case MC_USER:
+            SEND_STRING("tomii1031");
             return false;
 
         case MC_XL_NOBORDER:
@@ -210,13 +177,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // ==========================================================
-// Keymap
+// keymaps
 // ==========================================================
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT(
-KC_ESC,TD(TD_Q_SMART),KC_W,KC_E,KC_R,KC_T,KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
+KC_ESC,TD(TD_Q_SMART),TD(TD_W_CTLW),KC_E,KC_R,TD(TD_T_CTLT),KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
 KC_TAB,KC_A,KC_S,KC_D,LT(5,KC_F),KC_G,KC_4,KC_5,KC_6,KC_H,LT(5,KC_J),KC_K,KC_L,KC_MINS,
 KC_LSFT,KC_Z,KC_X,KC_C,KC_V,KC_B,KC_1,KC_2,KC_3,KC_N,KC_M,KC_COMM,KC_UP,MT(MOD_LSFT,KC_SLSH),
 KC_LCTL,TD(TD_LGUI_D),MT(MOD_LALT,KC_INT4),LT(4,KC_CAPS),LT(2,KC_SPC),LT(3,KC_0),KC_DOT,KC_BSPC,LT(1,KC_ENT),KC_LEFT,KC_DOWN,KC_RGHT
@@ -244,7 +211,7 @@ KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,LGUI(KC_0),KC_TRNS,KC_TRNS,KC_TRNS,KC_TR
 ),
 
 [4] = LAYOUT(
-QK_BOOT,QK_REBOOT,KC_F7,KC_F8,KC_F9,KC_F10,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,
+QK_BOOT,QK_REBOOT,KC_F7,KC_F8,KC_F9,KC_F10,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_USER,KC_TRNS,KC_TRNS,
 KC_TRNS,KC_TRNS,KC_F4,KC_F5,KC_F6,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_PASS,KC_TRNS,KC_TRNS,KC_TRNS,
 KC_TRNS,KC_F1,KC_F2,KC_F3,KC_TRNS,KC_F12,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_MAIL,KC_TRNS,KC_PGUP,KC_TRNS,
 KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_HOME,KC_PGDN,KC_END
