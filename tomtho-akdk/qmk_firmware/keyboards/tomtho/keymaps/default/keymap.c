@@ -65,7 +65,6 @@ enum combo_events {
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM dot_combo[] = {KC_COMM, KC_UP, COMBO_END};
 
-/* 修正：LT(5,KC_J) */
 const uint16_t PROGMEM screenshot_combo[] = {LT(5,KC_J), KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM paren_combo[] = {LT(5,KC_J), KC_K, COMBO_END};
 
@@ -95,42 +94,115 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 }
 
 // ==========================================================
-// Macro
+// Layer5 GUI repeat system
+// ==========================================================
+
+static bool layer5_first = true;
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    if (layer_state_cmp(state, 5)) {
+        layer5_first = true;
+    }
+    return state;
+}
+
+// ==========================================================
+// Macro + custom keys
 // ==========================================================
 
 enum custom_keycodes {
     MC_PASS = SAFE_RANGE,
     MC_MAIL,
-    MC_XL_NOBORDER
+    MC_XL_NOBORDER,
+
+    GUI_1,
+    GUI_2,
+    GUI_3,
+    GUI_4,
+    GUI_5,
+    GUI_6,
+    GUI_7,
+    GUI_8,
+    GUI_9,
+    GUI_0
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
+    if (!record->event.pressed) return true;
+
     switch (keycode) {
 
+        // ---------- GUI first only ----------
+        case GUI_1:
+            if (layer5_first){ tap_code16(LGUI(KC_1)); layer5_first=false;}
+            else tap_code(KC_1);
+            return false;
+
+        case GUI_2:
+            if (layer5_first){ tap_code16(LGUI(KC_2)); layer5_first=false;}
+            else tap_code(KC_2);
+            return false;
+
+        case GUI_3:
+            if (layer5_first){ tap_code16(LGUI(KC_3)); layer5_first=false;}
+            else tap_code(KC_3);
+            return false;
+
+        case GUI_4:
+            if (layer5_first){ tap_code16(LGUI(KC_4)); layer5_first=false;}
+            else tap_code(KC_4);
+            return false;
+
+        case GUI_5:
+            if (layer5_first){ tap_code16(LGUI(KC_5)); layer5_first=false;}
+            else tap_code(KC_5);
+            return false;
+
+        case GUI_6:
+            if (layer5_first){ tap_code16(LGUI(KC_6)); layer5_first=false;}
+            else tap_code(KC_6);
+            return false;
+
+        case GUI_7:
+            if (layer5_first){ tap_code16(LGUI(KC_7)); layer5_first=false;}
+            else tap_code(KC_7);
+            return false;
+
+        case GUI_8:
+            if (layer5_first){ tap_code16(LGUI(KC_8)); layer5_first=false;}
+            else tap_code(KC_8);
+            return false;
+
+        case GUI_9:
+            if (layer5_first){ tap_code16(LGUI(KC_9)); layer5_first=false;}
+            else tap_code(KC_9);
+            return false;
+
+        case GUI_0:
+            if (layer5_first){ tap_code16(LGUI(KC_0)); layer5_first=false;}
+            else tap_code(KC_0);
+            return false;
+
+        // ---------- macros ----------
+
         case MC_PASS:
-            if (record->event.pressed) {
-                SEND_STRING("Wwhowaito1");
-            }
+            SEND_STRING("Wwhowaito1");
             return false;
 
         case MC_MAIL:
-            if (record->event.pressed) {
-                SEND_STRING("lou12de39r");
-                tap_code16(JP_AT);
-                SEND_STRING("gmail");
-                tap_code(KC_DOT);
-                SEND_STRING("com");
-            }
+            SEND_STRING("lou12de39r");
+            tap_code16(JP_AT);
+            SEND_STRING("gmail");
+            tap_code(KC_DOT);
+            SEND_STRING("com");
             return false;
 
         case MC_XL_NOBORDER:
-            if (record->event.pressed) {
-                tap_code(KC_LALT);
-                tap_code(KC_H);
-                tap_code(KC_B);
-                tap_code(KC_N);
-            }
+            tap_code(KC_LALT);
+            tap_code(KC_H);
+            tap_code(KC_B);
+            tap_code(KC_N);
             return false;
     }
 
@@ -172,17 +244,17 @@ KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,LGUI(KC_0),KC_TRNS,KC_TRNS,KC_TRNS,KC_TR
 ),
 
 [4] = LAYOUT(
-QK_BOOT,QK_REBOOT,LSFT(KC_PGUP),KC_PGUP,LSFT(KC_PGDN),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,
-KC_TRNS,KC_TRNS,KC_HOME,KC_PGDN,KC_END,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_PASS,KC_TRNS,KC_TRNS,KC_TRNS,
-KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_MAIL,KC_TRNS,KC_PGUP,KC_TRNS,
+QK_BOOT,QK_REBOOT,KC_F7,KC_F8,KC_F9,KC_F10,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,
+KC_TRNS,KC_TRNS,KC_F4,KC_F5,KC_F6,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_PASS,KC_TRNS,KC_TRNS,KC_TRNS,
+KC_TRNS,KC_F1,KC_F2,KC_F3,KC_TRNS,KC_F12,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MC_MAIL,KC_TRNS,KC_PGUP,KC_TRNS,
 KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_HOME,KC_PGDN,KC_END
 ),
 
 [5] = LAYOUT(
-KC_TRNS,KC_TRNS,LCTL(KC_W),LCTL(KC_E),LCTL(KC_R),LCTL(KC_T),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,LGUI(KC_7),LGUI(KC_8),LGUI(KC_9),KC_TRNS,
-KC_TRNS,LCTL(KC_A),LCTL(KC_S),LCTL(KC_D),LCTL(KC_F),LCTL(KC_G),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,LGUI(KC_4),LGUI(KC_5),LGUI(KC_6),MC_XL_NOBORDER,
-KC_TRNS,LCTL(KC_Z),LCTL(KC_X),LCTL(KC_C),LCTL(KC_V),LCTL(KC_B),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,LGUI(KC_1),LGUI(KC_2),LGUI(KC_3),KC_TRNS,
-KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS
+KC_TRNS,KC_TRNS,LCTL(KC_W),LCTL(KC_E),LCTL(KC_R),LCTL(KC_T),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,GUI_7,GUI_8,GUI_9,KC_TRNS,
+KC_TRNS,LCTL(KC_A),LCTL(KC_S),LCTL(KC_D),LCTL(KC_F),LCTL(KC_G),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,GUI_4,GUI_5,GUI_6,MC_XL_NOBORDER,
+KC_TRNS,LCTL(KC_Z),LCTL(KC_X),LCTL(KC_C),LCTL(KC_V),LCTL(KC_B),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,GUI_1,GUI_2,GUI_3,KC_TRNS,
+KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,GUI_0,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS
 )
 
 };
