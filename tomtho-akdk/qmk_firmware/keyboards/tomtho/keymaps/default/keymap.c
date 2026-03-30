@@ -10,7 +10,9 @@
 
 enum {
     TD_LGUI_D = 0,
-    TD_Q_SMART
+    TD_Q_SMART,
+    TD_W_CTRLW,
+    TD_T_CTRLT
 };
 
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
@@ -34,9 +36,35 @@ void dance_q_finished(tap_dance_state_t *state, void *user_data) {
 }
 void dance_q_reset(tap_dance_state_t *state, void *user_data) {}
 
+void dance_w_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1 && !state->pressed) {
+        tap_code(KC_W);
+    } else if (state->count == 2 && state->pressed) {
+        tap_code16(LCTL(KC_W));
+    } else if (state->count == 2) {
+        tap_code(KC_W);
+        tap_code(KC_W);
+    }
+}
+void dance_w_reset(tap_dance_state_t *state, void *user_data) {}
+
+void dance_t_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1 && !state->pressed) {
+        tap_code(KC_T);
+    } else if (state->count == 2 && state->pressed) {
+        tap_code16(LCTL(KC_T));
+    } else if (state->count == 2) {
+        tap_code(KC_T);
+        tap_code(KC_T);
+    }
+}
+void dance_t_reset(tap_dance_state_t *state, void *user_data) {}
+
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
     [TD_Q_SMART] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_finished, dance_q_reset),
+    [TD_W_CTRLW] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_w_finished, dance_w_reset),
+    [TD_T_CTRLT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_t_finished, dance_t_reset),
 };
 
 // ==========================================================
@@ -173,7 +201,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT(
-KC_ESC,TD(TD_Q_SMART),KC_W,KC_E,KC_R,KC_T,KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
+KC_ESC,TD(TD_Q_SMART),TD(TD_W_CTRLW),KC_E,KC_R,TD(TD_T_CTRLT),KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
 KC_TAB,KC_A,KC_S,KC_D,LT(5,KC_F),KC_G,KC_4,KC_5,KC_6,KC_H,LT(5,KC_J),KC_K,KC_L,KC_MINS,
 KC_LSFT,KC_Z,KC_X,KC_C,KC_V,KC_B,KC_1,KC_2,KC_3,KC_N,KC_M,KC_COMM,KC_UP,MT(MOD_LSFT,KC_SLSH),
 KC_LCTL,TD(TD_LGUI_D),MT(MOD_LALT,KC_INT4),LT(4,KC_CAPS),LT(2,KC_SPC),LT(3,KC_0),KC_DOT,KC_BSPC,LT(1,KC_ENT),KC_LEFT,KC_DOWN,KC_RGHT
