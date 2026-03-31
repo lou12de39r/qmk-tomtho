@@ -10,9 +10,7 @@
 
 enum {
     TD_LGUI_D = 0,
-    TD_Q_SMART,
-    TD_W_CTRLW,
-    TD_T_CTRLT
+    TD_Q_SMART
 };
 
 void dance_lgui_d_finished(tap_dance_state_t *state, void *user_data) {
@@ -36,29 +34,9 @@ void dance_q_finished(tap_dance_state_t *state, void *user_data) {
 }
 void dance_q_reset(tap_dance_state_t *state, void *user_data) {}
 
-void dance_w_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->count == 3) {
-        tap_code16(LCTL(KC_W));
-        return;
-    }
-    tap_code(KC_W);
-}
-void dance_w_reset(tap_dance_state_t *state, void *user_data) {}
-
-void dance_t_finished(tap_dance_state_t *state, void *user_data) {
-    if (state->count == 3) {
-        tap_code16(LCTL(KC_T));
-        return;
-    }
-    tap_code(KC_T);
-}
-void dance_t_reset(tap_dance_state_t *state, void *user_data) {}
-
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI_D] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_lgui_d_finished, dance_lgui_d_reset),
     [TD_Q_SMART] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_finished, dance_q_reset),
-    [TD_W_CTRLW] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_w_finished, dance_w_reset),
-    [TD_T_CTRLT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_t_finished, dance_t_reset),
 };
 
 // ==========================================================
@@ -72,7 +50,11 @@ enum combo_events {
     COMBO_UNDS,
     COMBO_COLN,
     COMBO_SCLN,
-    COMBO_PAREN
+    COMBO_PAREN,
+
+    COMBO_CUT,
+    COMBO_COPY,
+    COMBO_PASTE
 };
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
@@ -83,6 +65,10 @@ const uint16_t PROGMEM unds_combo[] = {KC_L, KC_MINS, COMBO_END};
 const uint16_t PROGMEM coln_combo[] = {KC_9, KC_Y, COMBO_END};
 const uint16_t PROGMEM scln_combo[] = {KC_6, KC_H, COMBO_END};
 
+const uint16_t PROGMEM cut_combo[]  = {KC_Z, KC_X, COMBO_END};
+const uint16_t PROGMEM copy_combo[] = {KC_X, KC_C, COMBO_END};
+const uint16_t PROGMEM paste_combo[]= {KC_C, KC_V, COMBO_END};
+
 combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DEL] = COMBO(del_combo, KC_DEL),
     [COMBO_DOT] = COMBO(dot_combo, KC_DOT),
@@ -91,6 +77,10 @@ combo_t key_combos[COMBO_COUNT] = {
     [COMBO_COLN] = COMBO(coln_combo, JP_COLN),
     [COMBO_SCLN] = COMBO(scln_combo, KC_SCLN),
     [COMBO_PAREN] = COMBO_ACTION(paren_combo),
+
+    [COMBO_CUT]   = COMBO(cut_combo,  LCTL(KC_X)),
+    [COMBO_COPY]  = COMBO(copy_combo, LCTL(KC_C)),
+    [COMBO_PASTE] = COMBO(paste_combo,LCTL(KC_V)),
 };
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
@@ -175,7 +165,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case MC_XL_NOBORDER:
             tap_code(KC_LALT);
             tap_code(KC_H);
-            tap_code(KC_M);
+            tap_code(KC_B);
             return false;
 
         case MC_XL_VALIGN:
@@ -195,7 +185,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT(
-KC_ESC,TD(TD_Q_SMART),TD(TD_W_CTRLW),KC_E,KC_R,TD(TD_T_CTRLT),KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
+KC_ESC,TD(TD_Q_SMART),KC_W,KC_E,KC_R,KC_T,KC_7,KC_8,KC_9,KC_Y,KC_U,KC_I,KC_O,KC_P,
 KC_TAB,KC_A,KC_S,KC_D,LT(5,KC_F),KC_G,KC_4,KC_5,KC_6,KC_H,LT(5,KC_J),KC_K,KC_L,KC_MINS,
 KC_LSFT,KC_Z,KC_X,KC_C,KC_V,KC_B,KC_1,KC_2,KC_3,KC_N,KC_M,KC_COMM,KC_UP,MT(MOD_LSFT,KC_SLSH),
 KC_LCTL,TD(TD_LGUI_D),MT(MOD_LALT,KC_INT4),LT(4,KC_CAPS),LT(2,KC_SPC),LT(3,KC_0),KC_DOT,KC_BSPC,LT(1,KC_ENT),KC_LEFT,KC_DOWN,KC_RGHT
@@ -216,10 +206,10 @@ KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_0,KC_DOT,KC_C
 ),
 
 [3] = LAYOUT(
-KC_TRNS,KC_TRNS,LCTL(LSFT(KC_TAB)),KC_TRNS,LCTL(KC_TAB),KC_TRNS,LGUI(KC_7),LGUI(KC_8),LGUI(KC_9),KC_TRNS,MS_WHLU,MS_UP,MS_WHLL,MS_WHLR,
-KC_TRNS,MS_BTN1,MS_BTN1,MS_BTN3,MS_BTN2,KC_TRNS,LGUI(KC_4),LGUI(KC_5),LGUI(KC_6),KC_TRNS,MS_LEFT,MS_DOWN,MS_RGHT,KC_TRNS,
-KC_TRNS,KC_TRNS,MS_BTN4,KC_TRNS,MS_BTN5,KC_TRNS,LGUI(KC_1),LGUI(KC_2),LGUI(KC_3),KC_TRNS,MS_WHLD,KC_TRNS,KC_TRNS,KC_TRNS,
-KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,LGUI(KC_0),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS
+KC_TRNS,KC_TRNS,LCTL(LSFT(KC_TAB)),KC_TRNS,LCTL(KC_TAB),KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MS_WHLU,MS_UP,MS_WHLL,MS_WHLR,
+KC_TRNS,MS_BTN1,MS_BTN1,MS_BTN3,MS_BTN2,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MS_LEFT,MS_DOWN,MS_RGHT,KC_TRNS,
+KC_TRNS,KC_TRNS,MS_BTN4,KC_TRNS,MS_BTN5,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,MS_WHLD,KC_TRNS,KC_TRNS,KC_TRNS,
+KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS,KC_TRNS
 ),
 
 [4] = LAYOUT(
