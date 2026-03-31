@@ -12,4 +12,11 @@
 #define MOUSEKEY_MAX_SPEED         3 //マウスの最高スピード
 #define MOUSEKEY_TIME_TO_MAX      10 //マウスが最高速度に達するまでの時間
 #define MOUSEKEY_WHEEL_DELAY       0 //マウスホイールが動き始めるまでの時間
-#define TAPPING_TERM 175
+
+#define COMBO_TERM 45
+#define COMBO_STRICT_TIMER
+#define COMBO_MUST_HOLD_MODS
+
+#define TAPPING_TERM 180
+#define PERMISSIVE_HOLD
+#define IGNORE_MOD_TAP_INTERRUPT
