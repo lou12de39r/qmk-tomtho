@@ -1,12 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include QMK_KEYBOARD_H
 #include "process_tap_dance.h"
 #include "quantum/keymap_extras/keymap_japanese.h"
 #include "mousekey.h"
-
-// ==========================================================
-// Tap Dance
-// ==========================================================
 
 enum {
     TD_LGUI_D = 0,
@@ -39,10 +34,6 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_Q_SMART] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_q_finished, dance_q_reset),
 };
 
-// ==========================================================
-// Combo
-// ==========================================================
-
 enum combo_events {
     COMBO_DEL,
     COMBO_DOT,
@@ -53,7 +44,8 @@ enum combo_events {
     COMBO_PAREN,
     COMBO_CUT,
     COMBO_COPY,
-    COMBO_PASTE
+    COMBO_PASTE,
+    COMBO_SHIFT_F10
 };
 
 const uint16_t PROGMEM del_combo[] = {KC_DOWN, KC_RGHT, COMBO_END};
@@ -68,6 +60,8 @@ const uint16_t PROGMEM cut_combo[]  = {KC_Z, KC_X, COMBO_END};
 const uint16_t PROGMEM copy_combo[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM paste_combo[]= {KC_C, KC_V, COMBO_END};
 
+const uint16_t PROGMEM shiftf10_combo[] = {KC_S, KC_D, LT(5,KC_F), COMBO_END};
+
 combo_t key_combos[COMBO_COUNT] = {
     [COMBO_DEL] = COMBO(del_combo, KC_DEL),
     [COMBO_DOT] = COMBO(dot_combo, KC_DOT),
@@ -79,6 +73,7 @@ combo_t key_combos[COMBO_COUNT] = {
     [COMBO_CUT]   = COMBO(cut_combo,  LCTL(KC_X)),
     [COMBO_COPY]  = COMBO(copy_combo, LCTL(KC_C)),
     [COMBO_PASTE] = COMBO(paste_combo,LCTL(KC_V)),
+    [COMBO_SHIFT_F10] = COMBO(shiftf10_combo, LSFT(KC_F10))
 };
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
@@ -91,17 +86,12 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
     }
 }
 
-// ==========================================================
-// custom keycodes
-// ==========================================================
-
 enum custom_keycodes {
     MC_PASS = SAFE_RANGE,
     MC_MAIL,
     MC_XL_NOBORDER,
     MC_XL_VALIGN,
     MC_USER,
-
     GUI_1,
     GUI_2,
     GUI_3,
@@ -120,26 +110,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 
-        case GUI_1:
-            register_code(KC_LGUI); tap_code(KC_1); unregister_code(KC_LGUI); return false;
-        case GUI_2:
-            register_code(KC_LGUI); tap_code(KC_2); unregister_code(KC_LGUI); return false;
-        case GUI_3:
-            register_code(KC_LGUI); tap_code(KC_3); unregister_code(KC_LGUI); return false;
-        case GUI_4:
-            register_code(KC_LGUI); tap_code(KC_4); unregister_code(KC_LGUI); return false;
-        case GUI_5:
-            register_code(KC_LGUI); tap_code(KC_5); unregister_code(KC_LGUI); return false;
-        case GUI_6:
-            register_code(KC_LGUI); tap_code(KC_6); unregister_code(KC_LGUI); return false;
-        case GUI_7:
-            register_code(KC_LGUI); tap_code(KC_7); unregister_code(KC_LGUI); return false;
-        case GUI_8:
-            register_code(KC_LGUI); tap_code(KC_8); unregister_code(KC_LGUI); return false;
-        case GUI_9:
-            register_code(KC_LGUI); tap_code(KC_9); unregister_code(KC_LGUI); return false;
-        case GUI_0:
-            register_code(KC_LGUI); tap_code(KC_0); unregister_code(KC_LGUI); return false;
+        case GUI_1: register_code(KC_LGUI); tap_code(KC_1); unregister_code(KC_LGUI); return false;
+        case GUI_2: register_code(KC_LGUI); tap_code(KC_2); unregister_code(KC_LGUI); return false;
+        case GUI_3: register_code(KC_LGUI); tap_code(KC_3); unregister_code(KC_LGUI); return false;
+        case GUI_4: register_code(KC_LGUI); tap_code(KC_4); unregister_code(KC_LGUI); return false;
+        case GUI_5: register_code(KC_LGUI); tap_code(KC_5); unregister_code(KC_LGUI); return false;
+        case GUI_6: register_code(KC_LGUI); tap_code(KC_6); unregister_code(KC_LGUI); return false;
+        case GUI_7: register_code(KC_LGUI); tap_code(KC_7); unregister_code(KC_LGUI); return false;
+        case GUI_8: register_code(KC_LGUI); tap_code(KC_8); unregister_code(KC_LGUI); return false;
+        case GUI_9: register_code(KC_LGUI); tap_code(KC_9); unregister_code(KC_LGUI); return false;
+        case GUI_0: register_code(KC_LGUI); tap_code(KC_0); unregister_code(KC_LGUI); return false;
 
         case MC_PASS:
             SEND_STRING("Wwhowaito1");
@@ -169,13 +149,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             tap_code(KC_V);
             return false;
     }
-
     return true;
 }
-
-// ==========================================================
-// keymaps
-// ==========================================================
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
