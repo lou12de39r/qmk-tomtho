@@ -51,7 +51,6 @@ enum combo_events {
     COMBO_COLN,
     COMBO_SCLN,
     COMBO_PAREN,
-
     COMBO_CUT,
     COMBO_COPY,
     COMBO_PASTE
@@ -77,7 +76,6 @@ combo_t key_combos[COMBO_COUNT] = {
     [COMBO_COLN] = COMBO(coln_combo, JP_COLN),
     [COMBO_SCLN] = COMBO(scln_combo, KC_SCLN),
     [COMBO_PAREN] = COMBO_ACTION(paren_combo),
-
     [COMBO_CUT]   = COMBO(cut_combo,  LCTL(KC_X)),
     [COMBO_COPY]  = COMBO(copy_combo, LCTL(KC_C)),
     [COMBO_PASTE] = COMBO(paste_combo,LCTL(KC_V)),
@@ -91,19 +89,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             tap_code16(JP_RPRN);
             break;
     }
-}
-
-// ==========================================================
-// layer5 GUI first only
-// ==========================================================
-
-static bool layer5_first = true;
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    if (layer_state_cmp(state, 5)) {
-        layer5_first = true;
-    }
-    return state;
 }
 
 // ==========================================================
@@ -135,16 +120,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 
-        case GUI_1: if(layer5_first){tap_code16(LGUI(KC_1));layer5_first=false;} else tap_code(KC_1); return false;
-        case GUI_2: if(layer5_first){tap_code16(LGUI(KC_2));layer5_first=false;} else tap_code(KC_2); return false;
-        case GUI_3: if(layer5_first){tap_code16(LGUI(KC_3));layer5_first=false;} else tap_code(KC_3); return false;
-        case GUI_4: if(layer5_first){tap_code16(LGUI(KC_4));layer5_first=false;} else tap_code(KC_4); return false;
-        case GUI_5: if(layer5_first){tap_code16(LGUI(KC_5));layer5_first=false;} else tap_code(KC_5); return false;
-        case GUI_6: if(layer5_first){tap_code16(LGUI(KC_6));layer5_first=false;} else tap_code(KC_6); return false;
-        case GUI_7: if(layer5_first){tap_code16(LGUI(KC_7));layer5_first=false;} else tap_code(KC_7); return false;
-        case GUI_8: if(layer5_first){tap_code16(LGUI(KC_8));layer5_first=false;} else tap_code(KC_8); return false;
-        case GUI_9: if(layer5_first){tap_code16(LGUI(KC_9));layer5_first=false;} else tap_code(KC_9); return false;
-        case GUI_0: if(layer5_first){tap_code16(LGUI(KC_0));layer5_first=false;} else tap_code(KC_0); return false;
+        case GUI_1:
+            register_code(KC_LGUI); tap_code(KC_1); unregister_code(KC_LGUI); return false;
+        case GUI_2:
+            register_code(KC_LGUI); tap_code(KC_2); unregister_code(KC_LGUI); return false;
+        case GUI_3:
+            register_code(KC_LGUI); tap_code(KC_3); unregister_code(KC_LGUI); return false;
+        case GUI_4:
+            register_code(KC_LGUI); tap_code(KC_4); unregister_code(KC_LGUI); return false;
+        case GUI_5:
+            register_code(KC_LGUI); tap_code(KC_5); unregister_code(KC_LGUI); return false;
+        case GUI_6:
+            register_code(KC_LGUI); tap_code(KC_6); unregister_code(KC_LGUI); return false;
+        case GUI_7:
+            register_code(KC_LGUI); tap_code(KC_7); unregister_code(KC_LGUI); return false;
+        case GUI_8:
+            register_code(KC_LGUI); tap_code(KC_8); unregister_code(KC_LGUI); return false;
+        case GUI_9:
+            register_code(KC_LGUI); tap_code(KC_9); unregister_code(KC_LGUI); return false;
+        case GUI_0:
+            register_code(KC_LGUI); tap_code(KC_0); unregister_code(KC_LGUI); return false;
 
         case MC_PASS:
             SEND_STRING("Wwhowaito1");
